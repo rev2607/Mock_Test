@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Clock, CheckCircle, Circle, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
@@ -106,29 +106,13 @@ export default function RunTestPage() {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
-  const handleAnswerChange = useCallback((questionId: string, optionId: number, isMultiple: boolean = false) => {
-    console.log('handleAnswerChange called:', { questionId, optionId, isMultiple, currentAnswers: answers[questionId] })
-    
-    if (isMultiple) {
-      setAnswers(prev => {
-        const currentAnswers = prev[questionId] || []
-        console.log('Previous state for question:', questionId, currentAnswers)
-        const newAnswers = currentAnswers.includes(optionId)
-          ? currentAnswers.filter(id => id !== optionId)
-          : [...currentAnswers, optionId]
-        console.log('Multiple choice - new answers:', newAnswers)
-        return { ...prev, [questionId]: newAnswers }
-      })
-    } else {
-      // For single choice, directly set the answer
-      console.log('Single choice - setting answer:', [optionId])
-      setAnswers(prev => ({ ...prev, [questionId]: [optionId] }))
-    }
-  }, [])
+
 
   // Debug effect to log answers changes
   useEffect(() => {
-    console.log('Answers state changed:', answers)
+    console.log('=== ANSWERS STATE CHANGED ===')
+    console.log('New answers state:', answers)
+    console.log('=== END ANSWERS STATE CHANGE ===')
   }, [answers])
 
   const handleSubmitTest = async () => {
@@ -285,39 +269,30 @@ export default function RunTestPage() {
 
           {/* Options */}
           <div className="space-y-3">
-            {currentQuestion?.options.map((option) => {
+            {currentQuestion?.options.map((option, index) => {
               const isSelected = answers[currentQuestion.id]?.includes(parseInt(option.id)) || false
-              console.log('Option rendering:', { 
-                optionId: option.id, 
-                questionId: currentQuestion.id, 
-                currentAnswers: answers[currentQuestion.id], 
-                isSelected 
-              })
               return (
-                <label
+                <div
                   key={`${currentQuestion.id}-${option.id}`}
                   className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-50' 
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
+                  onClick={() => {
+                    console.log(`Clicking option ${option.id} for question ${currentQuestion.id}`)
+                    console.log('Current answers before click:', answers)
+                    
+                    // Force a single selection by directly setting the array
+                    const newAnswers = {
+                      ...answers,
+                      [currentQuestion.id]: [parseInt(option.id)]
+                    }
+                    
+                    console.log('Setting new answers:', newAnswers)
+                    setAnswers(newAnswers)
+                  }}
                 >
-                  <input
-                    type="radio"
-                    name={`question-${currentQuestion.id}`}
-                    value={option.id}
-                    checked={isSelected}
-                    onChange={(e) => {
-                      console.log('Radio button onChange triggered:', { 
-                        optionId: option.id, 
-                        questionId: currentQuestion.id,
-                        checked: e.target.checked,
-                        value: e.target.value
-                      })
-                      handleAnswerChange(currentQuestion.id, parseInt(option.id))
-                    }}
-                    className="sr-only"
-                  />
                   <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-500' 
@@ -326,7 +301,7 @@ export default function RunTestPage() {
                     {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
                   </div>
                   <span className="text-gray-700">{option.text}</span>
-                </label>
+                </div>
               )
             })}
           </div>

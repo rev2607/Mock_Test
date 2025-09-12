@@ -24,9 +24,37 @@ export function QuestionReview({ attemptId, resultData, testTitle }: QuestionRev
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        // In a real app, you'd fetch questions based on the attempt's test
-        // For demo, we'll use the result data to reconstruct questions
-        if (resultData?.questions) {
+        // Fetch actual questions from the database based on the attempt
+        const { data: attemptData, error: attemptError } = await supabase
+          .from('attempts')
+          .select(`
+            *,
+            test:tests(
+              *,
+              test_questions(
+                question:questions(
+                  *,
+                  options(*)
+                )
+              )
+            )
+          `)
+          .eq('id', attemptId)
+          .single()
+
+        if (attemptError) {
+          console.error('Error fetching attempt:', attemptError)
+          setQuestions([])
+          return
+        }
+
+        if (attemptData?.test?.test_questions) {
+          const questionsList = attemptData.test.test_questions
+            .map((tq: any) => tq.question)
+            .filter(Boolean) as Question[]
+          setQuestions(questionsList)
+        } else {
+          // Fallback to demo data if no questions found
           const demoQuestions: Question[] = [
             {
               id: '1',
