@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Question = Database['public']['Tables']['questions']['Row'] & {
   options: Database['public']['Tables']['options']['Row'][]
