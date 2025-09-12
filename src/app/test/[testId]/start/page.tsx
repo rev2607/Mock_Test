@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Clock, Play, BookOpen, Users } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Test = Database['public']['Tables']['tests']['Row'] & {
   subject?: Database['public']['Tables']['subjects']['Row']
