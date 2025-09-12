@@ -23,13 +23,25 @@ export function SubjectList() {
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
+        // Check if Supabase is properly configured
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_url_here') {
+          console.log('Supabase not configured, using demo data')
+          setSubjects([
+            { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() },
+            { id: '2', name: 'Artificial Intelligence', key: 'ai', created_at: new Date().toISOString() },
+            { id: '3', name: 'Electronics & Communication', key: 'ece', created_at: new Date().toISOString() },
+          ])
+          setLoading(false)
+          return
+        }
+
         const { data, error } = await supabase
           .from('subjects')
           .select('*')
           .order('name')
 
         if (error) {
-          console.error('Error fetching subjects:', error)
+          console.log('Database not set up, using demo data:', error.message)
           // For demo purposes, use default subjects if database is not set up
           setSubjects([
             { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() },
@@ -40,7 +52,7 @@ export function SubjectList() {
           setSubjects(data || [])
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.log('Error connecting to database, using demo data:', error)
         // Fallback to default subjects
         setSubjects([
           { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() },

@@ -29,7 +29,7 @@ export function TestList({ subjectId }: { subjectId: string }) {
           .single()
 
         if (subjectError) {
-          console.error('Error fetching subject:', subjectError)
+          console.log('Database not set up, using demo data:', subjectError.message)
           // Fallback for demo
           setSubject({ id: subjectId, name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() })
         } else {
@@ -48,7 +48,7 @@ export function TestList({ subjectId }: { subjectId: string }) {
           .order('created_at', { ascending: false })
 
         if (testsError) {
-          console.error('Error fetching tests:', testsError)
+          console.log('Database not set up, using demo data:', testsError.message)
           // Demo data
           setTests([
             {
@@ -78,7 +78,7 @@ export function TestList({ subjectId }: { subjectId: string }) {
           setTests(testsWithCount)
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.log('Error connecting to database, using demo data:', error)
         // Demo data
         setSubject({ id: subjectId, name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() })
         setTests([
