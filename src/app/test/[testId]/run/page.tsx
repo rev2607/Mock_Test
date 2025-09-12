@@ -1,11 +1,12 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Clock, CheckCircle, Circle, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { useAuth } from '@/contexts/AuthContext'
 
 type Question = Database['public']['Tables']['questions']['Row'] & {
   options: Database['public']['Tables']['options']['Row'][]
@@ -19,6 +20,7 @@ export default function RunTestPage() {
   const params = useParams()
   const router = useRouter()
   const testId = params.testId as string
+  const { user } = useAuth()
   const [test, setTest] = useState<Test | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -43,19 +45,8 @@ export default function RunTestPage() {
           .single()
 
         if (testError) {
-          console.log('Database not set up, using demo data:', testError.message)
-          // Demo data
-          setTest({
-            id: testId,
-            subject_id: '1',
-            title: 'CS Fundamentals Test',
-            duration_minutes: 60,
-            shuffle: true,
-            created_at: new Date().toISOString(),
-            subject: { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() }
-          })
-          setTimeLeft(60 * 60) // 60 minutes in seconds
-          setTimerStarted(true)
+          console.error('Error fetching test:', testError.message)
+          setTest(null)
         } else {
           setTest(testData)
           setTimeLeft(testData.duration_minutes * 60)
@@ -75,92 +66,16 @@ export default function RunTestPage() {
           .order('position')
 
         if (questionsError) {
-          console.log('Database not set up, using demo data:', questionsError.message)
-          // Demo data
-          const demoQuestions: Question[] = [
-            {
-              id: '1',
-              subject_id: '1',
-              title: 'What is the time complexity of binary search?',
-              body: 'Binary search is an efficient algorithm for finding an item from a sorted list of items.',
-              topic: 'Algorithms',
-              difficulty: 2,
-              created_at: new Date().toISOString(),
-              options: [
-                { id: '1', question_id: '1', text: 'O(n)', is_correct: false, created_at: new Date().toISOString() },
-                { id: '2', question_id: '1', text: 'O(log n)', is_correct: true, created_at: new Date().toISOString() },
-                { id: '3', question_id: '1', text: 'O(n²)', is_correct: false, created_at: new Date().toISOString() },
-                { id: '4', question_id: '1', text: 'O(1)', is_correct: false, created_at: new Date().toISOString() }
-              ]
-            },
-            {
-              id: '2',
-              subject_id: '1',
-              title: 'Which data structure follows LIFO principle?',
-              body: 'LIFO stands for Last In, First Out.',
-              topic: 'Data Structures',
-              difficulty: 1,
-              created_at: new Date().toISOString(),
-              options: [
-                { id: '5', question_id: '2', text: 'Queue', is_correct: false, created_at: new Date().toISOString() },
-                { id: '6', question_id: '2', text: 'Stack', is_correct: true, created_at: new Date().toISOString() },
-                { id: '7', question_id: '2', text: 'Array', is_correct: false, created_at: new Date().toISOString() },
-                { id: '8', question_id: '2', text: 'Linked List', is_correct: false, created_at: new Date().toISOString() }
-              ]
-            }
-          ]
-          setQuestions(demoQuestions)
+          console.error('Error fetching questions:', questionsError.message)
+          setQuestions([])
         } else {
           const questionsList = questionsData?.map(item => item.question).filter(Boolean) as Question[]
           setQuestions(questionsList)
         }
       } catch (error) {
-        console.log('Error connecting to database, using demo data:', error)
-        // Demo data
-        setTest({
-          id: testId,
-          subject_id: '1',
-          title: 'CS Fundamentals Test',
-          duration_minutes: 60,
-          shuffle: true,
-          created_at: new Date().toISOString(),
-          subject: { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() }
-        })
-        setTimeLeft(60 * 60)
-        setTimerStarted(true)
-        const demoQuestions: Question[] = [
-          {
-            id: '1',
-            subject_id: '1',
-            title: 'What is the time complexity of binary search?',
-            body: 'Binary search is an efficient algorithm for finding an item from a sorted list of items.',
-            topic: 'Algorithms',
-            difficulty: 2,
-            created_at: new Date().toISOString(),
-            options: [
-              { id: '1', question_id: '1', text: 'O(n)', is_correct: false, created_at: new Date().toISOString() },
-              { id: '2', question_id: '1', text: 'O(log n)', is_correct: true, created_at: new Date().toISOString() },
-              { id: '3', question_id: '1', text: 'O(n²)', is_correct: false, created_at: new Date().toISOString() },
-              { id: '4', question_id: '1', text: 'O(1)', is_correct: false, created_at: new Date().toISOString() }
-            ]
-          },
-          {
-            id: '2',
-            subject_id: '1',
-            title: 'Which data structure follows LIFO principle?',
-            body: 'LIFO stands for Last In, First Out.',
-            topic: 'Data Structures',
-            difficulty: 1,
-            created_at: new Date().toISOString(),
-            options: [
-              { id: '5', question_id: '2', text: 'Queue', is_correct: false, created_at: new Date().toISOString() },
-              { id: '6', question_id: '2', text: 'Stack', is_correct: true, created_at: new Date().toISOString() },
-              { id: '7', question_id: '2', text: 'Array', is_correct: false, created_at: new Date().toISOString() },
-              { id: '8', question_id: '2', text: 'Linked List', is_correct: false, created_at: new Date().toISOString() }
-            ]
-          }
-        ]
-        setQuestions(demoQuestions)
+        console.error('Error connecting to database:', error)
+        setTest(null)
+        setQuestions([])
       } finally {
         setLoading(false)
       }
@@ -191,22 +106,39 @@ export default function RunTestPage() {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
-  const handleAnswerChange = (questionId: string, optionId: number, isMultiple: boolean = false) => {
-    setAnswers(prev => {
-      const currentAnswers = prev[questionId] || []
-      if (isMultiple) {
+  const handleAnswerChange = useCallback((questionId: string, optionId: number, isMultiple: boolean = false) => {
+    console.log('handleAnswerChange called:', { questionId, optionId, isMultiple, currentAnswers: answers[questionId] })
+    
+    if (isMultiple) {
+      setAnswers(prev => {
+        const currentAnswers = prev[questionId] || []
+        console.log('Previous state for question:', questionId, currentAnswers)
         const newAnswers = currentAnswers.includes(optionId)
           ? currentAnswers.filter(id => id !== optionId)
           : [...currentAnswers, optionId]
+        console.log('Multiple choice - new answers:', newAnswers)
         return { ...prev, [questionId]: newAnswers }
-      } else {
-        return { ...prev, [questionId]: [optionId] }
-      }
-    })
-  }
+      })
+    } else {
+      // For single choice, directly set the answer
+      console.log('Single choice - setting answer:', [optionId])
+      setAnswers(prev => ({ ...prev, [questionId]: [optionId] }))
+    }
+  }, [])
+
+  // Debug effect to log answers changes
+  useEffect(() => {
+    console.log('Answers state changed:', answers)
+  }, [answers])
 
   const handleSubmitTest = async () => {
     if (submitting) return
+    
+    if (!user) {
+      console.error('User not authenticated')
+      setSubmitting(false)
+      return
+    }
     
     setSubmitting(true)
     try {
@@ -230,7 +162,7 @@ export default function RunTestPage() {
       const { data: attempt, error: attemptError } = await supabase
         .from('attempts')
         .insert({
-          user_id: 'demo-user', // In real app, get from auth
+          user_id: user.id,
           test_id: testId,
           started_at: new Date().toISOString(),
           submitted_at: new Date().toISOString(),
@@ -258,16 +190,16 @@ export default function RunTestPage() {
         .single()
 
       if (attemptError) {
-        console.log('Database not set up, using demo results:', attemptError.message)
-        // For demo, redirect anyway
-        router.push(`/results/demo-${Date.now()}`)
+        console.error('Error creating attempt:', attemptError.message)
+        alert('Failed to submit test. Please try again.')
       } else {
         router.push(`/results/${attempt.id}`)
       }
     } catch (error) {
-      console.log('Error submitting test, using demo results:', error)
-      // For demo, redirect anyway
-      router.push(`/results/demo-${Date.now()}`)
+      console.error('Error submitting test:', error)
+      alert('Failed to submit test. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -355,9 +287,15 @@ export default function RunTestPage() {
           <div className="space-y-3">
             {currentQuestion?.options.map((option) => {
               const isSelected = answers[currentQuestion.id]?.includes(parseInt(option.id)) || false
+              console.log('Option rendering:', { 
+                optionId: option.id, 
+                questionId: currentQuestion.id, 
+                currentAnswers: answers[currentQuestion.id], 
+                isSelected 
+              })
               return (
                 <label
-                  key={option.id}
+                  key={`${currentQuestion.id}-${option.id}`}
                   className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-50' 
@@ -367,8 +305,17 @@ export default function RunTestPage() {
                   <input
                     type="radio"
                     name={`question-${currentQuestion.id}`}
+                    value={option.id}
                     checked={isSelected}
-                    onChange={() => handleAnswerChange(currentQuestion.id, parseInt(option.id))}
+                    onChange={(e) => {
+                      console.log('Radio button onChange triggered:', { 
+                        optionId: option.id, 
+                        questionId: currentQuestion.id,
+                        checked: e.target.checked,
+                        value: e.target.value
+                      })
+                      handleAnswerChange(currentQuestion.id, parseInt(option.id))
+                    }}
                     className="sr-only"
                   />
                   <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${

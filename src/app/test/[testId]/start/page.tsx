@@ -34,18 +34,8 @@ export default function StartTestPage() {
           .single()
 
         if (error) {
-          console.log('Database not set up, using demo data:', error.message)
-          // Demo data
-          setTest({
-            id: testId,
-            subject_id: '1',
-            title: 'CS Fundamentals Test',
-            duration_minutes: 60,
-            shuffle: true,
-            created_at: new Date().toISOString(),
-            subject: { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() },
-            question_count: 25
-          })
+          console.error('Error fetching test:', error.message)
+          setTest(null)
         } else {
           setTest({
             ...data,
@@ -53,18 +43,8 @@ export default function StartTestPage() {
           })
         }
       } catch (error) {
-        console.log('Error connecting to database, using demo data:', error)
-        // Demo data
-        setTest({
-          id: testId,
-          subject_id: '1',
-          title: 'CS Fundamentals Test',
-          duration_minutes: 60,
-          shuffle: true,
-          created_at: new Date().toISOString(),
-          subject: { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() },
-          question_count: 25
-        })
+        console.error('Error connecting to database:', error)
+        setTest(null)
       } finally {
         setLoading(false)
       }

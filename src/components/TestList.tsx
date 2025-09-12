@@ -29,9 +29,8 @@ export function TestList({ subjectId }: { subjectId: string }) {
           .single()
 
         if (subjectError) {
-          console.log('Database not set up, using demo data:', subjectError.message)
-          // Fallback for demo
-          setSubject({ id: subjectId, name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() })
+          console.error('Error fetching subject:', subjectError.message)
+          setSubject(null)
         } else {
           setSubject(subjectData)
         }
@@ -48,28 +47,8 @@ export function TestList({ subjectId }: { subjectId: string }) {
           .order('created_at', { ascending: false })
 
         if (testsError) {
-          console.log('Database not set up, using demo data:', testsError.message)
-          // Demo data
-          setTests([
-            {
-              id: '1',
-              subject_id: subjectId,
-              title: 'CS Fundamentals Test',
-              duration_minutes: 60,
-              shuffle: true,
-              created_at: new Date().toISOString(),
-              question_count: 25
-            },
-            {
-              id: '2',
-              subject_id: subjectId,
-              title: 'Advanced Programming Concepts',
-              duration_minutes: 90,
-              shuffle: false,
-              created_at: new Date().toISOString(),
-              question_count: 40
-            }
-          ])
+          console.error('Error fetching tests:', testsError.message)
+          setTests([])
         } else {
           const testsWithCount = testsData?.map(test => ({
             ...test,
@@ -78,29 +57,9 @@ export function TestList({ subjectId }: { subjectId: string }) {
           setTests(testsWithCount)
         }
       } catch (error) {
-        console.log('Error connecting to database, using demo data:', error)
-        // Demo data
-        setSubject({ id: subjectId, name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() })
-        setTests([
-          {
-            id: '1',
-            subject_id: subjectId,
-            title: 'CS Fundamentals Test',
-            duration_minutes: 60,
-            shuffle: true,
-            created_at: new Date().toISOString(),
-            question_count: 25
-          },
-          {
-            id: '2',
-            subject_id: subjectId,
-            title: 'Advanced Programming Concepts',
-            duration_minutes: 90,
-            shuffle: false,
-            created_at: new Date().toISOString(),
-            question_count: 40
-          }
-        ])
+        console.error('Error connecting to database:', error)
+        setSubject(null)
+        setTests([])
       } finally {
         setLoading(false)
       }
