@@ -182,24 +182,25 @@ export default function AdminQuestionsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Questions</h1>
-            <p className="text-gray-600">
-              Create, edit, and manage test questions and their options
-            </p>
+    <ProtectedRoute requireAdmin={true}>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Questions</h1>
+              <p className="text-gray-600">
+                Create, edit, and manage test questions and their options
+              </p>
+            </div>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Question
+            </button>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Question
-          </button>
         </div>
-      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -464,6 +465,7 @@ export default function AdminQuestionsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </ProtectedRoute>
   )
 }

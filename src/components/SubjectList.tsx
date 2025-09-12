@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { BookOpen, Code, Cpu, Brain } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 type Subject = Database['public']['Tables']['subjects']['Row']
 
@@ -19,6 +20,7 @@ export function SubjectList() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = createClient()
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -68,6 +70,12 @@ export function SubjectList() {
   }, [supabase])
 
   const handleSubjectClick = (subject: Subject) => {
+    // Check if user is logged in
+    if (!user) {
+      // Redirect to login page with a message
+      router.push('/auth/login?message=Please login to access tests')
+      return
+    }
     router.push(`/tests/${subject.id}`)
   }
 

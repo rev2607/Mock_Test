@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Search, Download, Eye, Filter, Calendar, User, Trophy, Target, XCircle } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Attempt = Database['public']['Tables']['attempts']['Row'] & {
   test?: Database['public']['Tables']['tests']['Row'] & {
@@ -274,24 +275,25 @@ export default function AdminAttemptsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Test Attempts & Results</h1>
-            <p className="text-gray-600">
-              View and analyze all student test attempts and performance
-            </p>
+    <ProtectedRoute requireAdmin={true}>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Test Attempts & Results</h1>
+              <p className="text-gray-600">
+                View and analyze all student test attempts and performance
+              </p>
+            </div>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV
+            </button>
           </div>
-          <button
-            onClick={exportToCSV}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </button>
         </div>
-      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -501,6 +503,7 @@ export default function AdminAttemptsPage() {
           </p>
         </div>
       )}
-    </div>
+      </div>
+    </ProtectedRoute>
   )
 }

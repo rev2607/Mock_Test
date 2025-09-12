@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Plus, Edit, Trash2, Search, Clock, BookOpen, Users } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Test = Database['public']['Tables']['tests']['Row'] & {
   subject?: Database['public']['Tables']['subjects']['Row']
@@ -169,24 +170,25 @@ export default function AdminTestsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Tests</h1>
-            <p className="text-gray-600">
-              Create, edit, and manage test configurations
-            </p>
+    <ProtectedRoute requireAdmin={true}>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Tests</h1>
+              <p className="text-gray-600">
+                Create, edit, and manage test configurations
+              </p>
+            </div>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Test
+            </button>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Test
-          </button>
         </div>
-      </div>
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -409,6 +411,7 @@ export default function AdminTestsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </ProtectedRoute>
   )
 }

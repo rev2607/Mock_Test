@@ -24,6 +24,7 @@ export default function RunTestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<{ [questionId: string]: number[] }>({})
   const [timeLeft, setTimeLeft] = useState(0)
+  const [timerStarted, setTimerStarted] = useState(false)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const supabase = createClient()
@@ -42,7 +43,7 @@ export default function RunTestPage() {
           .single()
 
         if (testError) {
-          console.error('Error fetching test:', testError)
+          console.log('Database not set up, using demo data:', testError.message)
           // Demo data
           setTest({
             id: testId,
@@ -54,9 +55,11 @@ export default function RunTestPage() {
             subject: { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() }
           })
           setTimeLeft(60 * 60) // 60 minutes in seconds
+          setTimerStarted(true)
         } else {
           setTest(testData)
           setTimeLeft(testData.duration_minutes * 60)
+          setTimerStarted(true)
         }
 
         // Fetch questions with options
@@ -72,7 +75,7 @@ export default function RunTestPage() {
           .order('position')
 
         if (questionsError) {
-          console.error('Error fetching questions:', questionsError)
+          console.log('Database not set up, using demo data:', questionsError.message)
           // Demo data
           const demoQuestions: Question[] = [
             {
@@ -112,7 +115,7 @@ export default function RunTestPage() {
           setQuestions(questionsList)
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.log('Error connecting to database, using demo data:', error)
         // Demo data
         setTest({
           id: testId,
@@ -124,6 +127,7 @@ export default function RunTestPage() {
           subject: { id: '1', name: 'Computer Science', key: 'cs', created_at: new Date().toISOString() }
         })
         setTimeLeft(60 * 60)
+        setTimerStarted(true)
         const demoQuestions: Question[] = [
           {
             id: '1',
@@ -167,8 +171,10 @@ export default function RunTestPage() {
 
   // Timer effect
   useEffect(() => {
-    if (timeLeft <= 0) {
-      handleSubmitTest()
+    if (!timerStarted || timeLeft <= 0) {
+      if (timerStarted && timeLeft <= 0) {
+        handleSubmitTest()
+      }
       return
     }
 
@@ -177,7 +183,7 @@ export default function RunTestPage() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [timeLeft])
+  }, [timeLeft, timerStarted])
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -252,14 +258,14 @@ export default function RunTestPage() {
         .single()
 
       if (attemptError) {
-        console.error('Error creating attempt:', attemptError)
+        console.log('Database not set up, using demo results:', attemptError.message)
         // For demo, redirect anyway
         router.push(`/results/demo-${Date.now()}`)
       } else {
         router.push(`/results/${attempt.id}`)
       }
     } catch (error) {
-      console.error('Error submitting test:', error)
+      console.log('Error submitting test, using demo results:', error)
       // For demo, redirect anyway
       router.push(`/results/demo-${Date.now()}`)
     }

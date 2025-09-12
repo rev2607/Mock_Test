@@ -34,7 +34,7 @@ export default function StartTestPage() {
           .single()
 
         if (error) {
-          console.error('Error fetching test:', error)
+          console.log('Database not set up, using demo data:', error.message)
           // Demo data
           setTest({
             id: testId,
@@ -53,7 +53,7 @@ export default function StartTestPage() {
           })
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.log('Error connecting to database, using demo data:', error)
         // Demo data
         setTest({
           id: testId,

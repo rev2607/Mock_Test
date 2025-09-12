@@ -39,7 +39,7 @@ export default function ResultsPage() {
           .single()
 
         if (error) {
-          console.error('Error fetching attempt:', error)
+          console.log('Database not set up, using demo data:', error.message)
           // Demo data
           setAttempt({
             id: attemptId,
@@ -90,7 +90,7 @@ export default function ResultsPage() {
           setAttempt(data)
         }
       } catch (error) {
-        console.error('Error:', error)
+        console.log('Error connecting to database, using demo data:', error)
         // Demo data
         setAttempt({
           id: attemptId,
