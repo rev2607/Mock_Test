@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Clock, Trophy, Target, XCircle, Eye } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Attempt = Database['public']['Tables']['attempts']['Row'] & {
   test?: Database['public']['Tables']['tests']['Row'] & {
