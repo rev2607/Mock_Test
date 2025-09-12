@@ -8,6 +8,7 @@ import { ScoreSummary } from '@/components/ScoreSummary'
 import { WeakAreasChart } from '@/components/WeakAreasChart'
 import { QuestionReview } from '@/components/QuestionReview'
 import { Trophy, Target, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Attempt = Database['public']['Tables']['attempts']['Row'] & {
   test?: Database['public']['Tables']['tests']['Row'] & {
@@ -184,89 +185,91 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Test Results
-        </h1>
-        <p className="text-gray-600">
-          {attempt.test?.title} • {attempt.test?.subject?.name}
-        </p>
-      </div>
-
-      {/* Score Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="flex justify-center mb-4">
-            {getScoreIcon(attempt.score || 0)}
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Overall Score</h3>
-          <div className={`text-4xl font-bold ${getScoreColor(attempt.score || 0)}`}>
-            {Math.round(attempt.score || 0)}%
-          </div>
-          <p className="text-gray-600 text-sm mt-2">
-            {attempt.summary?.correct || 0} out of {attempt.summary?.total || 0} correct
+    <ProtectedRoute>
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Test Results
+          </h1>
+          <p className="text-gray-600">
+            {attempt.test?.title} • {attempt.test?.subject?.name}
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="flex justify-center mb-4">
-            <CheckCircle className="h-8 w-8 text-green-600" />
+        {/* Score Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="flex justify-center mb-4">
+              {getScoreIcon(attempt.score || 0)}
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Overall Score</h3>
+            <div className={`text-4xl font-bold ${getScoreColor(attempt.score || 0)}`}>
+              {Math.round(attempt.score || 0)}%
+            </div>
+            <p className="text-gray-600 text-sm mt-2">
+              {attempt.summary?.correct || 0} out of {attempt.summary?.total || 0} correct
+            </p>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Correct Answers</h3>
-          <div className="text-4xl font-bold text-green-600">
-            {attempt.summary?.correct || 0}
+
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="flex justify-center mb-4">
+              <CheckCircle className="h-8 w-8 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Correct Answers</h3>
+            <div className="text-4xl font-bold text-green-600">
+              {attempt.summary?.correct || 0}
+            </div>
+            <p className="text-gray-600 text-sm mt-2">
+              {attempt.summary?.total ? Math.round(((attempt.summary.correct / attempt.summary.total) * 100)) : 0}% accuracy
+            </p>
           </div>
-          <p className="text-gray-600 text-sm mt-2">
-            {attempt.summary?.total ? Math.round(((attempt.summary.correct / attempt.summary.total) * 100)) : 0}% accuracy
-          </p>
+
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="flex justify-center mb-4">
+              <Clock className="h-8 w-8 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Time Taken</h3>
+            <div className="text-4xl font-bold text-blue-600">
+              {attempt.started_at && attempt.submitted_at ? 
+                Math.round((new Date(attempt.submitted_at).getTime() - new Date(attempt.started_at).getTime()) / (1000 * 60)) : 0
+              }m
+            </div>
+            <p className="text-gray-600 text-sm mt-2">
+              out of {attempt.test?.duration_minutes || 0} minutes
+            </p>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="flex justify-center mb-4">
-            <Clock className="h-8 w-8 text-blue-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Time Taken</h3>
-          <div className="text-4xl font-bold text-blue-600">
-            {attempt.started_at && attempt.submitted_at ? 
-              Math.round((new Date(attempt.submitted_at).getTime() - new Date(attempt.started_at).getTime()) / (1000 * 60)) : 0
-            }m
-          </div>
-          <p className="text-gray-600 text-sm mt-2">
-            out of {attempt.test?.duration_minutes || 0} minutes
-          </p>
+        {/* Weak Areas Chart */}
+        <div className="mb-8">
+          <WeakAreasChart resultData={attempt.result_json} />
+        </div>
+
+        {/* Question Review */}
+        <div className="mb-8">
+          <QuestionReview 
+            attemptId={attemptId}
+            resultData={attempt.result_json}
+            testTitle={attempt.test?.title || ''}
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={() => window.history.back()}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+          >
+            Back to Tests
+          </button>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Take Another Test
+          </button>
         </div>
       </div>
-
-      {/* Weak Areas Chart */}
-      <div className="mb-8">
-        <WeakAreasChart resultData={attempt.result_json} />
-      </div>
-
-      {/* Question Review */}
-      <div className="mb-8">
-        <QuestionReview 
-          attemptId={attemptId}
-          resultData={attempt.result_json}
-          testTitle={attempt.test?.title || ''}
-        />
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-center space-x-4">
-        <button
-          onClick={() => window.history.back()}
-          className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-        >
-          Back to Tests
-        </button>
-        <button
-          onClick={() => window.location.href = '/'}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Take Another Test
-        </button>
-      </div>
-    </div>
+    </ProtectedRoute>
   )
 }

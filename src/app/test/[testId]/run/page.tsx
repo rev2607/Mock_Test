@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { Clock, CheckCircle, Circle, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 type Question = Database['public']['Tables']['questions']['Row'] & {
   options: Database['public']['Tables']['options']['Row'][]
@@ -299,134 +300,136 @@ export default function RunTestPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{test.title}</h1>
-            <p className="text-gray-600">{test.subject?.name}</p>
-          </div>
-          <div className="text-right">
-            <div className="flex items-center text-lg font-semibold text-gray-900 mb-1">
-              <Clock className="h-5 w-5 mr-2" />
-              {formatTime(timeLeft)}
-            </div>
-            <div className="text-sm text-gray-500">
-              Question {currentQuestionIndex + 1} of {questions.length}
-            </div>
-          </div>
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Question */}
-      <div className="bg-white rounded-lg shadow-md p-8 mb-6">
-        <div className="mb-6">
+    <ProtectedRoute>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Question {currentQuestionIndex + 1}
-            </h2>
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-              {currentQuestion?.topic}
-            </span>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{test.title}</h1>
+              <p className="text-gray-600">{test.subject?.name}</p>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center text-lg font-semibold text-gray-900 mb-1">
+                <Clock className="h-5 w-5 mr-2" />
+                {formatTime(timeLeft)}
+              </div>
+              <div className="text-sm text-gray-500">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </div>
+            </div>
           </div>
-          <p className="text-gray-700 text-lg leading-relaxed">
-            {currentQuestion?.body}
-          </p>
+          
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
         </div>
 
-        {/* Options */}
-        <div className="space-y-3">
-          {currentQuestion?.options.map((option) => {
-            const isSelected = answers[currentQuestion.id]?.includes(parseInt(option.id)) || false
-            return (
-              <label
-                key={option.id}
-                className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
-                  isSelected 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+        {/* Question */}
+        <div className="bg-white rounded-lg shadow-md p-8 mb-6">
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Question {currentQuestionIndex + 1}
+              </h2>
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                {currentQuestion?.topic}
+              </span>
+            </div>
+            <p className="text-gray-700 text-lg leading-relaxed">
+              {currentQuestion?.body}
+            </p>
+          </div>
+
+          {/* Options */}
+          <div className="space-y-3">
+            {currentQuestion?.options.map((option) => {
+              const isSelected = answers[currentQuestion.id]?.includes(parseInt(option.id)) || false
+              return (
+                <label
+                  key={option.id}
+                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
+                    isSelected 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={`question-${currentQuestion.id}`}
+                    checked={isSelected}
+                    onChange={() => handleAnswerChange(currentQuestion.id, parseInt(option.id))}
+                    className="sr-only"
+                  />
+                  <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
+                    isSelected 
+                      ? 'border-blue-500 bg-blue-500' 
+                      : 'border-gray-300'
+                  }`}>
+                    {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                  </div>
+                  <span className="text-gray-700">{option.text}</span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+            disabled={currentQuestionIndex === 0}
+            className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Previous
+          </button>
+
+          <div className="flex items-center space-x-2">
+            {questions.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentQuestionIndex(index)}
+                className={`w-8 h-8 rounded-full text-sm font-medium transition-colors duration-200 ${
+                  index === currentQuestionIndex
+                    ? 'bg-blue-600 text-white'
+                    : answers[questions[index].id]?.length > 0
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                <input
-                  type="radio"
-                  name={`question-${currentQuestion.id}`}
-                  checked={isSelected}
-                  onChange={() => handleAnswerChange(currentQuestion.id, parseInt(option.id))}
-                  className="sr-only"
-                />
-                <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
-                  isSelected 
-                    ? 'border-blue-500 bg-blue-500' 
-                    : 'border-gray-300'
-                }`}>
-                  {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                </div>
-                <span className="text-gray-700">{option.text}</span>
-              </label>
-            )
-          })}
+                {index + 1}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            {currentQuestionIndex === questions.length - 1 ? (
+              <button
+                onClick={handleSubmitTest}
+                disabled={submitting}
+                className="flex items-center px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Flag className="h-4 w-4 mr-2" />
+                {submitting ? 'Submitting...' : 'Submit Test'}
+              </button>
+            ) : (
+              <button
+                onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Next
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
-          disabled={currentQuestionIndex === 0}
-          className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Previous
-        </button>
-
-        <div className="flex items-center space-x-2">
-          {questions.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentQuestionIndex(index)}
-              className={`w-8 h-8 rounded-full text-sm font-medium transition-colors duration-200 ${
-                index === currentQuestionIndex
-                  ? 'bg-blue-600 text-white'
-                  : answers[questions[index].id]?.length > 0
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {currentQuestionIndex === questions.length - 1 ? (
-            <button
-              onClick={handleSubmitTest}
-              disabled={submitting}
-              className="flex items-center px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Flag className="h-4 w-4 mr-2" />
-              {submitting ? 'Submitting...' : 'Submit Test'}
-            </button>
-          ) : (
-            <button
-              onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Next
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+    </ProtectedRoute>
   )
 }
