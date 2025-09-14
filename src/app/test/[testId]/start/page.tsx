@@ -38,8 +38,8 @@ export default function StartTestPage() {
           setTest(null)
         } else {
           setTest({
-            ...data,
-            question_count: data.test_questions?.[0]?.count || 0
+            ...(data as any),
+            question_count: (data as any).test_questions?.[0]?.count || 0
           })
         }
       } catch (error) {
@@ -78,7 +78,7 @@ export default function StartTestPage() {
     return (
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Test not found</h1>
-        <p className="text-gray-600">The test you're looking for doesn't exist.</p>
+        <p className="text-gray-600">The test you&apos;re looking for doesn&apos;t exist.</p>
       </div>
     )
   }

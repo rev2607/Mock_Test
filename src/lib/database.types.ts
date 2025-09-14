@@ -131,8 +131,8 @@ export interface Database {
           submitted_at: string | null
           score: number | null
           total_marks: number | null
-          summary: any | null
-          result_json: any | null
+          summary: Record<string, unknown> | null
+          result_json: Record<string, unknown> | null
           created_at: string
         }
         Insert: {
@@ -143,8 +143,8 @@ export interface Database {
           submitted_at?: string | null
           score?: number | null
           total_marks?: number | null
-          summary?: any | null
-          result_json?: any | null
+          summary?: Record<string, unknown> | null
+          result_json?: Record<string, unknown> | null
           created_at?: string
         }
         Update: {
@@ -155,8 +155,8 @@ export interface Database {
           submitted_at?: string | null
           score?: number | null
           total_marks?: number | null
-          summary?: any | null
-          result_json?: any | null
+          summary?: Record<string, unknown> | null
+          result_json?: Record<string, unknown> | null
           created_at?: string
         }
       }

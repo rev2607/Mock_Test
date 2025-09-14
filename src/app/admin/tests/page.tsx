@@ -106,8 +106,8 @@ export default function AdminTestsPage() {
           ])
         } else {
           const testsWithCount = testsData?.map(test => ({
-            ...test,
-            question_count: test.test_questions?.[0]?.count || 0
+            ...(test as any),
+            question_count: (test as any).test_questions?.[0]?.count || 0
           })) || []
           setTests(testsWithCount)
         }

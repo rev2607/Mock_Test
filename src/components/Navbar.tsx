@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { User, LogOut, Settings, BarChart3, Menu, X, ChevronDown, BookOpen, TrendingUp, MessageCircle, Users, GraduationCap } from 'lucide-react'
+import { User, LogOut, BarChart3, Menu, X, ChevronDown, BookOpen, TrendingUp, MessageCircle, Users, GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import Image from 'next/image'
 

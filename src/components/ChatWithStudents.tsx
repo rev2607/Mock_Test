@@ -124,7 +124,7 @@ export function ChatWithStudents() {
       }
 
       // Get reactions for all messages
-      const messageIds = messagesData.map(m => m.id)
+      const messageIds = messagesData.map((m: any) => m.id)
       const { data: reactionsData, error: reactionsError } = await supabase
         .from('reactions')
         .select('message_id, emoji, user_id, id')
@@ -146,7 +146,7 @@ export function ChatWithStudents() {
       }
 
       // Get reactions for replies
-      const replyIds = repliesData?.map(r => r.id) || []
+      const replyIds = repliesData?.map((r: any) => r.id) || []
       const { data: replyReactionsData, error: replyReactionsError } = await supabase
         .from('reactions')
         .select('message_id, emoji, user_id, id')
@@ -158,8 +158,8 @@ export function ChatWithStudents() {
 
       // Get user names for all unique user IDs
       const allUserIds = [...new Set([
-        ...messagesData.map(m => m.user_id),
-        ...(repliesData?.map(r => r.user_id) || [])
+        ...messagesData.map((m: any) => m.user_id),
+        ...(repliesData?.map((r: any) => r.user_id) || [])
       ])]
 
       // Update user names map with current user
@@ -178,20 +178,20 @@ export function ChatWithStudents() {
       }
 
       // Combine the data with user names
-      const messagesWithData = messagesData.map(message => ({
+      const messagesWithData = messagesData.map((message: any) => ({
         ...message,
         user: { 
           email: getUserName(message.user_id), 
           name: getUserName(message.user_id) 
         },
-        reactions: reactionsData?.filter(r => r.message_id === message.id) || [],
-        replies: (repliesData?.filter(r => r.parent_message_id === message.id) || []).map(reply => ({
+        reactions: reactionsData?.filter((r: any) => r.message_id === message.id) || [],
+        replies: (repliesData?.filter((r: any) => r.parent_message_id === message.id) || []).map((reply: any) => ({
           ...reply,
           user: { 
             email: getUserName(reply.user_id), 
             name: getUserName(reply.user_id) 
           },
-          reactions: replyReactionsData?.filter(r => r.message_id === reply.id) || []
+          reactions: replyReactionsData?.filter((r: any) => r.message_id === reply.id) || []
         }))
       }))
 

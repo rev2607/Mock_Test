@@ -11,7 +11,15 @@ type Question = Database['public']['Tables']['questions']['Row'] & {
 
 interface QuestionReviewProps {
   attemptId: string
-  resultData: any
+  resultData: {
+    answers?: { [questionId: string]: number[] }
+    questions?: Array<{
+      id: string
+      topic: string
+      difficulty: number
+      correct: boolean
+    }>
+  }
   testTitle: string
 }
 
@@ -50,7 +58,7 @@ export function QuestionReview({ attemptId, resultData, testTitle }: QuestionRev
 
         if (attemptData?.test?.test_questions) {
           const questionsList = attemptData.test.test_questions
-            .map((tq: any) => tq.question)
+            .map((tq: { question: Question }) => tq.question)
             .filter(Boolean) as Question[]
           setQuestions(questionsList)
         } else {
@@ -144,7 +152,7 @@ export function QuestionReview({ attemptId, resultData, testTitle }: QuestionRev
 
   const currentQuestion = questions[currentQuestionIndex]
   const userAnswers = resultData?.answers?.[currentQuestion.id] || []
-  const isCorrect = resultData?.questions?.find((q: any) => q.id === currentQuestion.id)?.correct || false
+  const isCorrect = resultData?.questions?.find((q) => q.id === currentQuestion.id)?.correct || false
 
   // Debug logging
   console.log('QuestionReview Debug:', {

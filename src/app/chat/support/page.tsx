@@ -41,7 +41,7 @@ export default function ChatSupportPage() {
           {/* Description */}
           <div className="space-y-4">
             <p className="text-lg text-gray-600">
-              We're building a dedicated support system to help you with any questions or issues.
+              We&apos;re building a dedicated support system to help you with any questions or issues.
             </p>
             <p className="text-gray-500">
               Get ready for instant support, technical assistance, and personalized help from our team.

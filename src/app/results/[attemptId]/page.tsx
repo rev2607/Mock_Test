@@ -68,7 +68,7 @@ export default function ResultsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Attempt Not Found</h1>
-          <p className="text-gray-600 mb-6">The test attempt you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 mb-6">The test attempt you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <Link
             href="/account/attempts"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
@@ -93,19 +93,19 @@ export default function ResultsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <ScoreSummary 
-              score={attempt.summary?.percentage || 0}
-              correct={attempt.summary?.correct || 0}
-              total={attempt.summary?.total || 0}
+              score={(attempt.summary as any)?.percentage || 0}
+              correct={(attempt.summary as any)?.correct || 0}
+              total={(attempt.summary as any)?.total || 0}
               timeTaken={attempt.submitted_at 
                 ? Math.round((new Date(attempt.submitted_at).getTime() - new Date(attempt.started_at).getTime()) / 60000)
                 : 0
               }
               totalTime={attempt.test?.duration_minutes || 0}
             />
-            <WeakAreasChart resultData={attempt.result_json} />
+            <WeakAreasChart resultData={attempt.result_json || {}} />
             <QuestionReview 
               attemptId={attempt.id}
-              resultData={attempt.result_json}
+              resultData={attempt.result_json || {}}
               testTitle={attempt.test?.title || 'Test'}
             />
           </div>

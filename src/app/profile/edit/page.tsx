@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
-import { User, Mail, Phone, MapPin, GraduationCap, Save, ArrowLeft } from 'lucide-react'
+import { User, Phone, MapPin, GraduationCap, Save, ArrowLeft } from 'lucide-react'
 
 export default function EditProfile() {
   const { user, loading } = useAuth()
@@ -111,7 +111,7 @@ export default function EditProfile() {
           pincode: formData.pincode,
           target_exam: formData.targetExam,
           updated_at: new Date().toISOString()
-        })
+        } as any)
 
       if (profileError) {
         console.error('Error updating profiles table:', profileError)

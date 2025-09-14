@@ -4,7 +4,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TrendingDown, TrendingUp } from 'lucide-react'
 
 interface WeakAreasChartProps {
-  resultData: any
+  resultData: {
+    questions?: Array<{
+      id: string
+      topic: string
+      difficulty: number
+      correct: boolean
+    }>
+  }
 }
 
 export function WeakAreasChart({ resultData }: WeakAreasChartProps) {
@@ -20,7 +27,7 @@ export function WeakAreasChart({ resultData }: WeakAreasChartProps) {
   }
 
   // Process data for charts
-  const topicStats = resultData.questions.reduce((acc: any, question: any) => {
+  const topicStats = resultData.questions.reduce((acc: Record<string, { correct: number; total: number }>, question) => {
     const topic = question.topic || 'Unknown'
     if (!acc[topic]) {
       acc[topic] = { correct: 0, total: 0 }
@@ -32,7 +39,7 @@ export function WeakAreasChart({ resultData }: WeakAreasChartProps) {
     return acc
   }, {})
 
-  const chartData = Object.entries(topicStats).map(([topic, stats]: [string, any]) => ({
+  const chartData = Object.entries(topicStats).map(([topic, stats]) => ({
     topic,
     correct: stats.correct,
     incorrect: stats.total - stats.correct,
@@ -72,7 +79,7 @@ export function WeakAreasChart({ resultData }: WeakAreasChartProps) {
                 tickFormatter={(value) => `${value}%`}
               />
               <Tooltip 
-                formatter={(value: any, name: string) => [`${value}%`, 'Accuracy']}
+                formatter={(value: number) => [`${value}%`, 'Accuracy']}
                 labelFormatter={(label) => `Topic: ${label}`}
               />
               <Bar 
@@ -104,7 +111,7 @@ export function WeakAreasChart({ resultData }: WeakAreasChartProps) {
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: any, name: string, props: any) => [
+                formatter={(value: number, name: string, props: { payload: { correct: number; total: number } }) => [
                   `${value}% (${props.payload.correct}/${props.payload.total})`,
                   'Accuracy'
                 ]}

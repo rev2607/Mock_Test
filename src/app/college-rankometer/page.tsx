@@ -41,7 +41,7 @@ export default function CollegeRankometer() {
           {/* Description */}
           <div className="space-y-4">
             <p className="text-lg text-gray-600">
-              We're working hard to bring you an amazing college ranking and comparison tool.
+              We&apos;re working hard to bring you an amazing college ranking and comparison tool.
             </p>
             <p className="text-gray-500">
               Get ready to explore colleges, compare rankings, and make informed decisions about your future.

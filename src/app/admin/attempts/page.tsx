@@ -466,7 +466,7 @@ export default function AdminAttemptsPage() {
                       </span>
                     </div>
                     <div className="text-xs text-gray-500">
-                      {attempt.summary?.correct || 0}/{attempt.summary?.total || attempt.total_marks || 0}
+                      {(attempt.summary as any)?.correct || 0}/{(attempt.summary as any)?.total || attempt.total_marks || 0}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

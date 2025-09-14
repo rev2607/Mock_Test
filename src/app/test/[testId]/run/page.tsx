@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
-import { Clock, CheckCircle, Circle, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
+import { Clock, ArrowLeft, ArrowRight, Flag } from 'lucide-react'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -49,7 +49,7 @@ export default function RunTestPage() {
           setTest(null)
         } else {
           setTest(testData)
-          setTimeLeft(testData.duration_minutes * 60)
+          setTimeLeft((testData as any).duration_minutes * 60)
           setTimerStarted(true)
         }
 
@@ -69,7 +69,7 @@ export default function RunTestPage() {
           console.error('Error fetching questions:', questionsError.message)
           setQuestions([])
         } else {
-          const questionsList = questionsData?.map(item => item.question).filter(Boolean) as Question[]
+          const questionsList = questionsData?.map((item: any) => item.question).filter(Boolean) as Question[]
           setQuestions(questionsList)
         }
       } catch (error) {
@@ -175,7 +175,7 @@ export default function RunTestPage() {
                 : false
             }))
           }
-        })
+        } as any)
         .select()
         .single()
 
@@ -183,7 +183,7 @@ export default function RunTestPage() {
         console.error('Error creating attempt:', attemptError.message)
         alert('Failed to submit test. Please try again.')
       } else {
-        router.push(`/results/${attempt.id}`)
+        router.push(`/results/${(attempt as any).id}`)
       }
     } catch (error) {
       console.error('Error submitting test:', error)
@@ -222,7 +222,7 @@ export default function RunTestPage() {
     return (
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Test not found</h1>
-        <p className="text-gray-600">The test you're looking for doesn't exist or has no questions.</p>
+        <p className="text-gray-600">The test you&apos;re looking for doesn&apos;t exist or has no questions.</p>
       </div>
     )
   }

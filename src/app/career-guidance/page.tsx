@@ -41,7 +41,7 @@ export default function CareerGuidancePage() {
           {/* Description */}
           <div className="space-y-4">
             <p className="text-lg text-gray-600">
-              We're developing a comprehensive career guidance platform to help you make informed decisions about your future.
+              We&apos;re developing a comprehensive career guidance platform to help you make informed decisions about your future.
             </p>
             <p className="text-gray-500">
               Get ready to explore career paths, discover opportunities, and plan your academic journey.
