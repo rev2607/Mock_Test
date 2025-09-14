@@ -264,6 +264,44 @@ export interface Database {
           created_at?: string
         }
       }
+      profiles: {
+        Row: {
+          id: string
+          email: string | null
+          user_name: string | null
+          phone_number: string | null
+          city: string | null
+          pincode: string | null
+          target_exam: string | null
+          role: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          user_name?: string | null
+          phone_number?: string | null
+          city?: string | null
+          pincode?: string | null
+          target_exam?: string | null
+          role?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          user_name?: string | null
+          phone_number?: string | null
+          city?: string | null
+          pincode?: string | null
+          target_exam?: string | null
+          role?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

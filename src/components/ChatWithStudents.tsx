@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
-import { MessageCircle, Users, Hash, Send, Smile, Reply, Trash2, MoreVertical } from 'lucide-react'
+import { MessageCircle, Users, Hash, Send, ThumbsUp, Reply, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ProfileCompletionCheck } from './ProfileCompletionCheck'
 
@@ -15,7 +15,6 @@ type Message = Database['public']['Tables']['messages']['Row'] & {
   replies: Array<Message & { user: { email: string } }>
 }
 
-const EMOJI_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '😡', '🎉', '👏']
 
 export function ChatWithStudents() {
   const { user, loading } = useAuth()
@@ -29,6 +28,7 @@ export function ChatWithStudents() {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null)
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [databaseError, setDatabaseError] = useState<string | null>(null)
+  const [userNames, setUserNames] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
     if (loading) return
@@ -156,14 +156,41 @@ export function ChatWithStudents() {
         console.error('Error fetching reply reactions:', replyReactionsError)
       }
 
-      // Combine the data - for now, use user_id as email placeholder
+      // Get user names for all unique user IDs
+      const allUserIds = [...new Set([
+        ...messagesData.map(m => m.user_id),
+        ...(repliesData?.map(r => r.user_id) || [])
+      ])]
+
+      // Update user names map with current user
+      if (user) {
+        const currentUserName = user.user_metadata?.user_name || user.email?.split('@')[0] || 'You'
+        setUserNames(prev => new Map(prev).set(user.id, currentUserName))
+      }
+
+      // For other users, we'll use a fallback approach
+      const getUserName = (userId: string) => {
+        if (userId === user?.id) {
+          return user.user_metadata?.user_name || user.email?.split('@')[0] || 'You'
+        }
+        // For other users, we'll use a simple fallback
+        return `User ${userId.substring(0, 6)}`
+      }
+
+      // Combine the data with user names
       const messagesWithData = messagesData.map(message => ({
         ...message,
-        user: { email: message.user_id.substring(0, 8) + '...' }, // Show first 8 chars of user_id
+        user: { 
+          email: getUserName(message.user_id), 
+          name: getUserName(message.user_id) 
+        },
         reactions: reactionsData?.filter(r => r.message_id === message.id) || [],
         replies: (repliesData?.filter(r => r.parent_message_id === message.id) || []).map(reply => ({
           ...reply,
-          user: { email: reply.user_id.substring(0, 8) + '...' },
+          user: { 
+            email: getUserName(reply.user_id), 
+            name: getUserName(reply.user_id) 
+          },
           reactions: replyReactionsData?.filter(r => r.message_id === reply.id) || []
         }))
       }))
@@ -215,20 +242,86 @@ export function ChatWithStudents() {
     e.preventDefault()
     if (!newMessage.trim() || !selectedChannel || !user) return
 
-    const { error } = await supabase
+    const messageContent = newMessage.trim()
+    const isReply = !!replyingTo
+
+    // Immediately add the message to local state for instant UI update
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
+      channel_id: selectedChannel.id,
+      user_id: user.id,
+      content: messageContent,
+      parent_message_id: replyingTo?.id || null,
+      created_at: new Date().toISOString(),
+      user: { 
+        email: user.user_metadata?.user_name || user.email?.split('@')[0] || 'You',
+        name: user.user_metadata?.user_name || user.email?.split('@')[0] || 'You'
+      },
+      reactions: [],
+      replies: []
+    }
+
+    if (isReply) {
+      // Add as a reply to the original message
+      setMessages(prev => prev.map(msg => 
+        msg.id === replyingTo.id 
+          ? { ...msg, replies: [...(msg.replies || []), tempMessage] }
+          : msg
+      ))
+    } else {
+      // Add as a new message
+      setMessages(prev => [...prev, tempMessage])
+    }
+
+    // Clear the input immediately
+    setNewMessage('')
+    setReplyingTo(null)
+
+    // Send to database
+    const { data, error } = await supabase
       .from('messages')
       .insert({
         channel_id: selectedChannel.id,
         user_id: user.id,
-        content: newMessage.trim(),
+        content: messageContent,
         parent_message_id: replyingTo?.id || null
       })
+      .select()
+      .single()
 
     if (error) {
       console.error('Error sending message:', error)
-    } else {
-      setNewMessage('')
-      setReplyingTo(null)
+      // Remove the temporary message on error
+      if (isReply) {
+        setMessages(prev => prev.map(msg => 
+          msg.id === replyingTo.id 
+            ? { ...msg, replies: msg.replies?.filter(r => r.id !== tempMessage.id) || [] }
+            : msg
+        ))
+      } else {
+        setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
+      }
+    } else if (data) {
+      // Replace temporary message with real message from database
+      const realMessage: Message = {
+        ...data,
+        user: { 
+          email: user.user_metadata?.user_name || user.email?.split('@')[0] || 'You',
+          name: user.user_metadata?.user_name || user.email?.split('@')[0] || 'You'
+        },
+        reactions: [],
+        replies: []
+      }
+
+      if (isReply) {
+        setMessages(prev => prev.map(msg => 
+          msg.id === replyingTo.id 
+            ? { ...msg, replies: msg.replies?.map(r => r.id === tempMessage.id ? realMessage : r) || [] }
+            : msg
+        ))
+      } else {
+        setMessages(prev => prev.map(msg => msg.id === tempMessage.id ? realMessage : msg))
+      }
     }
   }
 
@@ -347,7 +440,7 @@ export function ChatWithStudents() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-32">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -358,7 +451,7 @@ export function ChatWithStudents() {
                   <p>No messages yet. Start the conversation!</p>
                 </div>
               ) : (
-                messages.map((message) => (
+                messages.flatMap((message) => [
                   <MessageComponent
                     key={message.id}
                     message={message}
@@ -366,8 +459,20 @@ export function ChatWithStudents() {
                     onReply={setReplyingTo}
                     onReact={addReaction}
                     onDelete={deleteMessage}
-                  />
-                ))
+                  />,
+                  // Render replies as separate messages
+                  ...(message.replies?.map((reply) => (
+                    <ReplyMessageComponent
+                      key={reply.id}
+                      reply={reply}
+                      originalMessage={message}
+                      currentUserId={user.id}
+                      onReply={setReplyingTo}
+                      onReact={addReaction}
+                      onDelete={deleteMessage}
+                    />
+                  )) || [])
+                ])
               )}
             </div>
 
@@ -386,7 +491,7 @@ export function ChatWithStudents() {
                     ✕
                   </button>
                 </div>
-                <p className="text-xs text-blue-600 mt-1 truncate italic">"{replyingTo.content}"</p>
+                <p className="text-xs text-blue-600 mt-1 truncate italic">&ldquo;{replyingTo.content}&rdquo;</p>
               </div>
             )}
 
@@ -446,7 +551,6 @@ function MessageComponent({
   onReact: (messageId: string, emoji: string) => void
   onDelete: (messageId: string) => void
 }) {
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const isOwnMessage = message.user_id === currentUserId
 
   return (
@@ -466,14 +570,19 @@ function MessageComponent({
             <div className="flex-1"></div>
             <div className="flex items-center space-x-1">
               <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="opacity-75 hover:opacity-100"
+                onClick={() => onReact(message.id, '👍')}
+                className="opacity-75 hover:opacity-100 flex items-center space-x-1"
+                title="Like"
               >
-                <Smile className="h-4 w-4" />
+                <ThumbsUp className="h-4 w-4" />
+                {message.reactions && message.reactions.length > 0 && (
+                  <span className="text-xs">{message.reactions.length}</span>
+                )}
               </button>
               <button
                 onClick={() => onReply(message)}
                 className="opacity-75 hover:opacity-100"
+                title="Reply"
               >
                 <Reply className="h-4 w-4" />
               </button>
@@ -481,6 +590,7 @@ function MessageComponent({
                 <button
                   onClick={() => onDelete(message.id)}
                   className="opacity-75 hover:opacity-100"
+                  title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -490,64 +600,91 @@ function MessageComponent({
           
           <p className="text-sm text-black">{message.content}</p>
         
-        {/* Reactions */}
-        {message.reactions && message.reactions.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {Object.entries(
-              message.reactions.reduce((acc, reaction) => {
-                acc[reaction.emoji] = (acc[reaction.emoji] || 0) + 1
-                return acc
-              }, {} as Record<string, number>)
-            ).map(([emoji, count]) => (
-              <button
-                key={emoji}
-                onClick={() => onReact(message.id, emoji)}
-                className="text-xs px-2 py-1 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30"
-              >
-                {emoji} {count}
-              </button>
-            ))}
+
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Reply Message Component - displays as separate message like WhatsApp
+function ReplyMessageComponent({ 
+  reply, 
+  originalMessage,
+  currentUserId, 
+  onReply, 
+  onReact, 
+  onDelete 
+}: { 
+  reply: Message & { user: { email: string } }
+  originalMessage: Message
+  currentUserId: string
+  onReply: (message: Message) => void
+  onReact: (messageId: string, emoji: string) => void
+  onDelete: (messageId: string) => void
+}) {
+  const isOwnMessage = reply.user_id === currentUserId
+
+  return (
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-2`}>
+      <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'ml-12' : 'mr-12'}`}>
+        {/* User name - only show for other users' messages */}
+        {!isOwnMessage && (
+          <div className="text-xs text-gray-600 mb-1 px-1">
+            {reply.user.email}
           </div>
         )}
-
-        {/* Emoji Picker */}
-        {showEmojiPicker && (
-          <div className="absolute mt-2 p-2 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-            <div className="flex space-x-1">
-              {EMOJI_OPTIONS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => {
-                    onReact(message.id, emoji)
-                    setShowEmojiPicker(false)
-                  }}
-                  className="text-lg hover:bg-gray-100 rounded p-1"
-                >
-                  {emoji}
-                </button>
-              ))}
+        
+        <div className={`px-4 py-2 rounded-lg ${
+          isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+        }`}>
+          {/* Reply context - show what this is replying to */}
+          <div className={`text-xs mb-2 pb-2 border-l-2 pl-2 ${
+            isOwnMessage ? 'border-white border-opacity-30' : 'border-gray-400'
+          }`}>
+            <div className={`text-xs ${isOwnMessage ? 'text-white text-opacity-75' : 'text-gray-500'}`}>
+              Replying to {originalMessage.user.email}
+            </div>
+            <div className={`text-xs italic ${isOwnMessage ? 'text-white text-opacity-60' : 'text-gray-600'}`}>
+              &ldquo;{originalMessage.content}&rdquo;
             </div>
           </div>
-        )}
-
-        {/* Replies */}
-        {message.replies && message.replies.length > 0 && (
-          <div className="mt-2 space-y-2">
-            {message.replies.map((reply) => (
-              <div key={reply.id} className="text-xs text-gray-500 pl-2">
-                <div className="text-gray-400 mb-1">
-                  {reply.user.email} replied to {message.user.email}
-                </div>
-                <div className="text-gray-600 italic text-xs mb-1">
-                  "{message.content}"
-                </div>
-                <div className="text-black text-sm">
-                  {reply.content}
-                </div>
-              </div>
-            ))}
+          
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex-1"></div>
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => onReact(reply.id, '👍')}
+                className="opacity-75 hover:opacity-100 flex items-center space-x-1"
+                title="Like"
+              >
+                <ThumbsUp className="h-4 w-4" />
+                {reply.reactions && reply.reactions.length > 0 && (
+                  <span className="text-xs">{reply.reactions.length}</span>
+                )}
+              </button>
+              <button
+                onClick={() => onReply(originalMessage)}
+                className="opacity-75 hover:opacity-100"
+                title="Reply"
+              >
+                <Reply className="h-4 w-4" />
+              </button>
+              {isOwnMessage && (
+                <button
+                  onClick={() => onDelete(reply.id)}
+                  className="opacity-75 hover:opacity-100"
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
-        )}
+          
+          <p className="text-sm text-black">{reply.content}</p>
+          
+        </div>
       </div>
     </div>
   )

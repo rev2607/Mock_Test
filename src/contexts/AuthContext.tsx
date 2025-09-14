@@ -8,7 +8,6 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   signOut: () => Promise<void>
-  isAdmin: boolean
   isProfileComplete: boolean
 }
 
@@ -64,10 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut()
   }
 
-  const isAdmin = user?.user_metadata?.role === 'admin'
-
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, isAdmin, isProfileComplete }}>
+    <AuthContext.Provider value={{ user, loading, signOut, isProfileComplete }}>
       {children}
     </AuthContext.Provider>
   )

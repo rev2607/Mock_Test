@@ -7,7 +7,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 
 export function Navbar() {
-  const { user, loading, signOut, isAdmin } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
@@ -162,42 +162,18 @@ export function Navbar() {
                         <span>My Attempts</span>
                       </button>
 
-                      {isAdmin && (
-                        <>
-                          <button
-                            onClick={() => {
-                              router.push('/admin/questions')
-                              setIsProfileDropdownOpen(false)
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2"
-                          >
-                            <Settings className="h-4 w-4" />
-                            <span>Manage Questions</span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              router.push('/admin/tests')
-                              setIsProfileDropdownOpen(false)
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2"
-                          >
-                            <Settings className="h-4 w-4" />
-                            <span>Manage Tests</span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              router.push('/admin/attempts')
-                              setIsProfileDropdownOpen(false)
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2"
-                          >
-                            <BarChart3 className="h-4 w-4" />
-                            <span>View Results</span>
-                          </button>
-                        </>
-                      )}
 
                       <div className="border-t">
+                        <button
+                          onClick={() => {
+                            router.push('/profile/edit')
+                            setIsProfileDropdownOpen(false)
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center space-x-2"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Edit Profile</span>
+                        </button>
                         <button
                           onClick={handleSignOut}
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"

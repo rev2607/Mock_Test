@@ -22,8 +22,7 @@ export default function SignupPage() {
     pincode: '',
     targetExam: '',
     password: '',
-    confirmPassword: '',
-    role: 'student' as 'student' | 'admin'
+    confirmPassword: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -87,7 +86,6 @@ export default function SignupPage() {
         password: formData.password,
         options: {
           data: {
-            role: formData.role,
             user_name: formData.userName,
             phone_number: formData.phoneNumber,
             city: formData.city,
@@ -274,22 +272,6 @@ export default function SignupPage() {
               </select>
             </div>
 
-            {/* Account Type */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Account Type
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white"
-                value={formData.role}
-                onChange={handleInputChange}
-              >
-                <option value="student" className="text-gray-900">Student</option>
-                <option value="admin" className="text-gray-900">Admin</option>
-              </select>
-            </div>
 
             {/* Password */}
             <div>
