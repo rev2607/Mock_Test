@@ -231,18 +231,18 @@ export default function RunTestPage() {
     <ProtectedRoute>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{test.title}</h1>
-              <p className="text-gray-600">{test.subject?.name}</p>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+            <div className="flex-1">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{test.title}</h1>
+              <p className="text-sm sm:text-base text-gray-600">{test.subject?.name}</p>
             </div>
-            <div className="text-right">
-              <div className="flex items-center text-lg font-semibold text-gray-900 mb-1">
-                <Clock className="h-5 w-5 mr-2" />
+            <div className="text-left sm:text-right">
+              <div className="flex items-center text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                 {formatTime(timeLeft)}
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-xs sm:text-sm text-gray-500">
                 Question {currentQuestionIndex + 1} of {questions.length}
               </div>
             </div>
@@ -258,29 +258,29 @@ export default function RunTestPage() {
         </div>
 
         {/* Question */}
-        <div className="bg-white rounded-lg shadow-md p-8 mb-6">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6">
+          <div className="mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                 Question {currentQuestionIndex + 1}
               </h2>
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+              <span className="px-2 sm:px-3 py-1 bg-blue-100 text-blue-800 text-xs sm:text-sm rounded-full self-start sm:self-auto">
                 {currentQuestion?.topic}
               </span>
             </div>
-            <p className="text-gray-700 text-lg leading-relaxed">
+            <p className="text-gray-700 text-sm sm:text-base lg:text-lg leading-relaxed">
               {currentQuestion?.body}
             </p>
           </div>
 
           {/* Options */}
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {currentQuestion?.options.map((option, index) => {
               const isSelected = answers[currentQuestion.id]?.includes(index) || false
               return (
                 <div
                   key={`${currentQuestion.id}-${option.id}`}
-                  className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
+                  className={`flex items-center p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-50' 
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -299,14 +299,14 @@ export default function RunTestPage() {
                     setAnswers(newAnswers)
                   }}
                 >
-                  <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
+                  <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 mr-2 sm:mr-3 flex items-center justify-center flex-shrink-0 ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-500' 
                       : 'border-gray-300'
                   }`}>
-                    {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                    {isSelected && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>}
                   </div>
-                  <span className="text-gray-700">{option.text}</span>
+                  <span className="text-gray-700 text-sm sm:text-base">{option.text}</span>
                 </div>
               )
             })}
@@ -314,22 +314,22 @@ export default function RunTestPage() {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <button
             onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
             disabled={currentQuestionIndex === 0}
-            className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center px-3 sm:px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             Previous
           </button>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto max-w-full">
             {questions.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentQuestionIndex(index)}
-                className={`w-8 h-8 rounded-full text-sm font-medium transition-colors duration-200 ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm font-medium transition-colors duration-200 flex-shrink-0 ${
                   index === currentQuestionIndex
                     ? 'bg-blue-600 text-white'
                     : answers[questions[index].id]?.length > 0
@@ -347,18 +347,18 @@ export default function RunTestPage() {
               <button
                 onClick={handleSubmitTest}
                 disabled={submitting}
-                className="flex items-center px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center px-4 sm:px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
-                <Flag className="h-4 w-4 mr-2" />
+                <Flag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 {submitting ? 'Submitting...' : 'Submit Test'}
               </button>
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="flex items-center px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm sm:text-base"
               >
                 Next
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
               </button>
             )}
           </div>

@@ -61,12 +61,12 @@ export function SubjectList() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-            <div className="h-12 w-12 bg-gray-200 rounded-lg mb-4"></div>
-            <div className="h-6 bg-gray-200 rounded mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div key={i} className="bg-white rounded-lg shadow-md p-4 sm:p-6 animate-pulse">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 rounded-lg mb-3 sm:mb-4"></div>
+            <div className="h-5 sm:h-6 bg-gray-200 rounded mb-2"></div>
+            <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4"></div>
           </div>
         ))}
       </div>
@@ -74,7 +74,7 @@ export function SubjectList() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {subjects.map((subject) => {
         const IconComponent = BookOpen
         
@@ -82,25 +82,25 @@ export function SubjectList() {
           <button
             key={subject.id}
             onClick={() => handleSubjectClick(subject)}
-            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 text-left group"
+            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 sm:p-6 text-left group"
           >
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-200">
-                <IconComponent className="h-6 w-6 text-blue-600" />
+            <div className="flex items-center mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-200">
+                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
             </div>
             
-            <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
               {subject.name}
             </h3>
             
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-xs sm:text-sm">
               Click to view available tests and start practicing
             </p>
             
-            <div className="mt-4 flex items-center text-blue-600 text-sm font-medium group-hover:text-blue-700">
+            <div className="mt-3 sm:mt-4 flex items-center text-blue-600 text-xs sm:text-sm font-medium group-hover:text-blue-700">
               View Tests
-              <svg className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="ml-1 h-3 w-3 sm:h-4 sm:w-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>

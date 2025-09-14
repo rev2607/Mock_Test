@@ -84,17 +84,17 @@ export function TestList({ subjectId }: { subjectId: string }) {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-6 sm:h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
+          <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-              <div className="h-6 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-4"></div>
-              <div className="h-8 bg-gray-200 rounded"></div>
+            <div key={i} className="bg-white rounded-lg shadow-md p-4 sm:p-6 animate-pulse">
+              <div className="h-5 sm:h-6 bg-gray-200 rounded mb-2"></div>
+              <div className="h-3 sm:h-4 bg-gray-200 rounded mb-4"></div>
+              <div className="h-7 sm:h-8 bg-gray-200 rounded"></div>
             </div>
           ))}
         </div>
@@ -103,54 +103,54 @@ export function TestList({ subjectId }: { subjectId: string }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
           {subject?.name || 'Subject'} Tests
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600 px-4">
           Choose a test to start practicing and improve your skills
         </p>
       </div>
 
       {tests.length === 0 ? (
-        <div className="text-center py-12">
-          <BookOpen className="mx-auto h-12 w-12 text-gray-400" />
+        <div className="text-center py-8 sm:py-12">
+          <BookOpen className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No tests available</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-xs sm:text-sm text-gray-500 px-4">
             There are no tests available for this subject yet.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {tests.map((test) => (
-            <div key={test.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6">
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+            <div key={test.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 sm:p-6">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex-1 mr-2">
                   {test.title}
                 </h3>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Users className="h-4 w-4 mr-1" />
-                  {test.question_count || 0} questions
+                <div className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  {test.question_count || 0} q
                 </div>
               </div>
 
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center text-sm text-gray-600">
-                  <Clock className="h-4 w-4 mr-2" />
-                  Duration: {test.duration_minutes} minutes
+              <div className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
+                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  Duration: {test.duration_minutes} min
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <BookOpen className="h-4 w-4 mr-2" />
+                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Questions: {test.shuffle ? 'Shuffled' : 'Fixed order'}
                 </div>
               </div>
 
               <button
                 onClick={() => handleStartTest(test.id)}
-                className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                className="w-full flex items-center justify-center px-3 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
               >
-                <Play className="h-4 w-4 mr-2" />
+                <Play className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Start Test
               </button>
             </div>

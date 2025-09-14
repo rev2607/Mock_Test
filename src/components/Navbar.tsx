@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { User, LogOut, BarChart3, Menu, X, ChevronDown, BookOpen, TrendingUp, MessageCircle, Users, GraduationCap } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 export function Navbar() {
@@ -11,6 +11,24 @@ export function Navbar() {
   const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setIsMobileMenuOpen(false)
+    }
+    
+    // Listen for route changes
+    const handlePopState = () => {
+      setIsMobileMenuOpen(false)
+    }
+    
+    window.addEventListener('popstate', handlePopState)
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -41,9 +59,9 @@ export function Navbar() {
           {/* Logo and Brand */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
           >
-            <div className="relative h-10 w-10">
+            <div className="relative h-8 w-8 sm:h-10 sm:w-10">
               <Image
                 src="/studenthub_logo.png"
                 alt="Student Hub Logo"
@@ -52,7 +70,7 @@ export function Navbar() {
                 priority
               />
             </div>
-            <span className="text-2xl font-bold text-gray-900">
+            <span className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
               Student Hub<span className="text-blue-600">.in</span>
             </span>
           </button>
@@ -205,7 +223,12 @@ export function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                console.log('Mobile menu toggle clicked')
+                setIsMobileMenuOpen(!isMobileMenuOpen)
+              }}
               className="lg:hidden p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -215,76 +238,97 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 pb-4 border-t">
-            <div className="pt-4 space-y-2">
+          <div className="lg:hidden mt-4 pb-4 border-t bg-white relative z-50">
+            <div className="pt-4 space-y-1">
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('IIT JEE clicked')
                   router.push('/tests/iit')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <BookOpen className="h-4 w-4" />
+                <BookOpen className="h-4 w-4 flex-shrink-0" />
                 <span>IIT JEE Tests</span>
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('AIIMS clicked')
                   router.push('/tests/aiims')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <BookOpen className="h-4 w-4" />
+                <BookOpen className="h-4 w-4 flex-shrink-0" />
                 <span>AIIMS Tests</span>
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('EAMCET clicked')
                   router.push('/tests/eamcet')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <BookOpen className="h-4 w-4" />
+                <BookOpen className="h-4 w-4 flex-shrink-0" />
                 <span>EAMCET Tests</span>
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('College Rankometer clicked')
                   router.push('/college-rankometer')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <TrendingUp className="h-4 w-4" />
+                <TrendingUp className="h-4 w-4 flex-shrink-0" />
                 <span>College Rankometer</span>
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('Career Guidance clicked')
                   router.push('/career-guidance')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <GraduationCap className="h-4 w-4" />
+                <GraduationCap className="h-4 w-4 flex-shrink-0" />
                 <span>Career Guidance</span>
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('Chat with Students clicked')
                   router.push('/chat/students')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-4 w-4 flex-shrink-0" />
                 <span>Chat with Students</span>
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  console.log('Chat with US clicked')
                   router.push('/chat/support')
                   setIsMobileMenuOpen(false)
                 }}
-                className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
+                className="w-full text-left px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-3 text-sm sm:text-base"
               >
-                <MessageCircle className="h-4 w-4" />
+                <MessageCircle className="h-4 w-4 flex-shrink-0" />
                 <span>Chat with US</span>
               </button>
             </div>
@@ -295,8 +339,10 @@ export function Navbar() {
       {/* Click outside to close dropdowns */}
       {(isProfileDropdownOpen || isMobileMenuOpen) && (
         <div
-          className="fixed inset-0 z-40"
-          onClick={() => {
+          className="fixed inset-0 z-30"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
             setIsProfileDropdownOpen(false)
             setIsMobileMenuOpen(false)
           }}

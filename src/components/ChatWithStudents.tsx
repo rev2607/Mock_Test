@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
@@ -29,6 +29,8 @@ export function ChatWithStudents() {
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [databaseError, setDatabaseError] = useState<string | null>(null)
   const [userNames, setUserNames] = useState<Map<string, string>>(new Map())
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (loading) return
@@ -47,6 +49,18 @@ export function ChatWithStudents() {
       subscribeToMessages()
     }
   }, [selectedChannel])
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Focus textarea when replying
+  useEffect(() => {
+    if (replyingTo && textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }, [replyingTo])
 
   const fetchChannels = async () => {
     console.log('Fetching channels...')
@@ -432,10 +446,10 @@ export function ChatWithStudents() {
 
   return (
     <ProfileCompletionCheck>
-      <div className="flex h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Sidebar */}
-      <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
+      <div className="flex flex-col lg:flex-row h-full min-h-[500px] bg-white rounded-lg shadow-lg overflow-hidden">
+      {/* Sidebar - Responsive layout */}
+      <div className="w-full lg:w-80 xl:w-96 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col flex-shrink-0">
+        <div className="p-4 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center">
             <MessageCircle className="h-5 w-5 mr-2" />
             Study Groups
@@ -447,78 +461,81 @@ export function ChatWithStudents() {
             <button
               key={channel.id}
               onClick={() => setSelectedChannel(channel)}
-              className={`w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors ${
+              className={`w-full text-left px-4 py-4 hover:bg-gray-100 active:bg-gray-200 transition-colors touch-manipulation ${
                 selectedChannel?.id === channel.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
               }`}
             >
               <div className="flex items-center">
-                <Hash className="h-4 w-4 text-gray-500 mr-2" />
-                <span className="font-medium text-gray-900">{channel.name}</span>
+                <Hash className="h-5 w-5 text-gray-500 mr-3" />
+                <span className="font-medium text-gray-900 text-base">{channel.name}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1 truncate">{channel.description}</p>
+              <p className="text-sm text-gray-500 mt-1 truncate">{channel.description}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {selectedChannel ? (
           <>
             {/* Channel Header */}
-            <div className="p-4 border-b border-gray-200 bg-white">
+            <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900">#{selectedChannel.name}</h3>
-                  <p className="text-sm text-gray-500">{selectedChannel.description}</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 text-lg">#{selectedChannel.name}</h3>
+                  <p className="text-sm text-gray-500 truncate">{selectedChannel.description}</p>
                 </div>
-                <div className="flex items-center text-sm text-gray-500">
+                <div className="flex items-center text-sm text-gray-500 flex-shrink-0 ml-4">
                   <Users className="h-4 w-4 mr-1" />
-                  {messages.length} messages
+                  {messages.length} msgs
                 </div>
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-32">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               ) : messages.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  <MessageCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No messages yet. Start the conversation!</p>
+                <div className="text-center text-gray-500 py-12">
+                  <MessageCircle className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg">No messages yet. Start the conversation!</p>
                 </div>
               ) : (
-                messages.flatMap((message) => [
-                  <MessageComponent
-                    key={message.id}
-                    message={message}
-                    currentUserId={user.id}
-                    onReply={setReplyingTo}
-                    onReact={addReaction}
-                    onDelete={deleteMessage}
-                  />,
-                  // Render replies as separate messages
-                  ...(message.replies?.map((reply) => (
-                    <ReplyMessageComponent
-                      key={reply.id}
-                      reply={reply}
-                      originalMessage={message}
+                <>
+                  {messages.flatMap((message) => [
+                    <MessageComponent
+                      key={message.id}
+                      message={message}
                       currentUserId={user.id}
                       onReply={setReplyingTo}
                       onReact={addReaction}
                       onDelete={deleteMessage}
-                    />
-                  )) || [])
-                ])
+                    />,
+                    // Render replies as separate messages
+                    ...(message.replies?.map((reply) => (
+                      <ReplyMessageComponent
+                        key={reply.id}
+                        reply={reply}
+                        originalMessage={message}
+                        currentUserId={user.id}
+                        onReply={setReplyingTo}
+                        onReact={addReaction}
+                        onDelete={deleteMessage}
+                      />
+                    )) || [])
+                  ])}
+                  <div ref={messagesEndRef} />
+                </>
               )}
             </div>
 
             {/* Reply Indicator */}
             {replyingTo && (
-              <div className="px-4 py-2 bg-blue-50 border-t border-blue-200">
+              <div className="px-4 py-3 bg-blue-50 border-t border-blue-200 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-sm text-blue-700">
                     <Reply className="h-4 w-4 mr-2" />
@@ -526,24 +543,25 @@ export function ChatWithStudents() {
                   </div>
                   <button
                     onClick={() => setReplyingTo(null)}
-                    className="text-blue-500 hover:text-blue-700 text-lg"
+                    className="text-blue-500 hover:text-blue-700 text-lg touch-manipulation p-1"
                   >
                     ✕
                   </button>
                 </div>
-                <p className="text-xs text-blue-600 mt-1 truncate italic">&ldquo;{replyingTo.content}&rdquo;</p>
+                <p className="text-sm text-blue-600 mt-1 truncate italic">&ldquo;{replyingTo.content}&rdquo;</p>
               </div>
             )}
 
             {/* Message Input */}
-            <form onSubmit={sendMessage} className="p-4 border-t border-gray-200">
-              <div className="flex items-end space-x-2">
+            <form onSubmit={sendMessage} className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
+              <div className="flex items-end space-x-3">
                 <div className="flex-1">
                   <textarea
+                    ref={textareaRef}
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder={`Message #${selectedChannel.name}`}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black text-base min-h-[48px] max-h-32"
                     rows={1}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -551,14 +569,19 @@ export function ChatWithStudents() {
                         sendMessage(e)
                       }
                     }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement
+                      target.style.height = 'auto'
+                      target.style.height = Math.min(target.scrollHeight, 128) + 'px'
+                    }}
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!newMessage.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[48px] min-w-[48px] touch-manipulation"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 </button>
               </div>
             </form>
@@ -566,8 +589,8 @@ export function ChatWithStudents() {
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500">
             <div className="text-center">
-              <MessageCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>Select a channel to start chatting</p>
+              <MessageCircle className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg">Select a channel to start chatting</p>
             </div>
           </div>
         )}
@@ -594,34 +617,34 @@ function MessageComponent({
   const isOwnMessage = message.user_id === currentUserId
 
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-2`}>
-      <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'ml-12' : 'mr-12'}`}>
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
+      <div className={`max-w-[80%] sm:max-w-md lg:max-w-lg xl:max-w-xl ${isOwnMessage ? 'ml-4' : 'mr-4'}`}>
         {/* User name - only show for other users' messages */}
         {!isOwnMessage && (
-          <div className="text-xs text-gray-600 mb-1 px-1">
+          <div className="text-sm text-gray-600 mb-2 px-1">
             {message.user.email}
           </div>
         )}
         
-        <div className={`px-4 py-2 rounded-lg ${
+        <div className={`px-4 py-3 rounded-lg ${
           isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
         }`}>
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex-1"></div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => onReact(message.id, '👍')}
-                className="opacity-75 hover:opacity-100 flex items-center space-x-1"
+                className="opacity-75 hover:opacity-100 active:opacity-100 flex items-center space-x-1 p-2 rounded touch-manipulation"
                 title="Like"
               >
                 <ThumbsUp className="h-4 w-4" />
                 {message.reactions && message.reactions.length > 0 && (
-                  <span className="text-xs">{message.reactions.length}</span>
+                  <span className="text-xs font-medium">{message.reactions.length}</span>
                 )}
               </button>
               <button
                 onClick={() => onReply(message)}
-                className="opacity-75 hover:opacity-100"
+                className="opacity-75 hover:opacity-100 active:opacity-100 p-2 rounded touch-manipulation"
                 title="Reply"
               >
                 <Reply className="h-4 w-4" />
@@ -629,7 +652,7 @@ function MessageComponent({
               {isOwnMessage && (
                 <button
                   onClick={() => onDelete(message.id)}
-                  className="opacity-75 hover:opacity-100"
+                  className="opacity-75 hover:opacity-100 active:opacity-100 p-2 rounded touch-manipulation"
                   title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -638,9 +661,7 @@ function MessageComponent({
             </div>
           </div>
           
-          <p className="text-sm text-black">{message.content}</p>
-        
-
+          <p className="text-base break-words leading-relaxed">{message.content}</p>
         </div>
       </div>
     </div>
@@ -666,46 +687,46 @@ function ReplyMessageComponent({
   const isOwnMessage = reply.user_id === currentUserId
 
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-2`}>
-      <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'ml-12' : 'mr-12'}`}>
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
+      <div className={`max-w-[80%] sm:max-w-md lg:max-w-lg xl:max-w-xl ${isOwnMessage ? 'ml-4' : 'mr-4'}`}>
         {/* User name - only show for other users' messages */}
         {!isOwnMessage && (
-          <div className="text-xs text-gray-600 mb-1 px-1">
+          <div className="text-sm text-gray-600 mb-2 px-1">
             {reply.user.email}
           </div>
         )}
         
-        <div className={`px-4 py-2 rounded-lg ${
+        <div className={`px-4 py-3 rounded-lg ${
           isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
         }`}>
           {/* Reply context - show what this is replying to */}
-          <div className={`text-xs mb-2 pb-2 border-l-2 pl-2 ${
+          <div className={`text-sm mb-3 pb-2 border-l-2 pl-3 ${
             isOwnMessage ? 'border-white border-opacity-30' : 'border-gray-400'
           }`}>
-            <div className={`text-xs ${isOwnMessage ? 'text-white text-opacity-75' : 'text-gray-500'}`}>
+            <div className={`text-sm ${isOwnMessage ? 'text-white text-opacity-75' : 'text-gray-500'}`}>
               Replying to {originalMessage.user.email}
             </div>
-            <div className={`text-xs italic ${isOwnMessage ? 'text-white text-opacity-60' : 'text-gray-600'}`}>
+            <div className={`text-sm italic ${isOwnMessage ? 'text-white text-opacity-60' : 'text-gray-600'} truncate`}>
               &ldquo;{originalMessage.content}&rdquo;
             </div>
           </div>
           
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex-1"></div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => onReact(reply.id, '👍')}
-                className="opacity-75 hover:opacity-100 flex items-center space-x-1"
+                className="opacity-75 hover:opacity-100 active:opacity-100 flex items-center space-x-1 p-2 rounded touch-manipulation"
                 title="Like"
               >
                 <ThumbsUp className="h-4 w-4" />
                 {reply.reactions && reply.reactions.length > 0 && (
-                  <span className="text-xs">{reply.reactions.length}</span>
+                  <span className="text-xs font-medium">{reply.reactions.length}</span>
                 )}
               </button>
               <button
                 onClick={() => onReply(originalMessage)}
-                className="opacity-75 hover:opacity-100"
+                className="opacity-75 hover:opacity-100 active:opacity-100 p-2 rounded touch-manipulation"
                 title="Reply"
               >
                 <Reply className="h-4 w-4" />
@@ -713,7 +734,7 @@ function ReplyMessageComponent({
               {isOwnMessage && (
                 <button
                   onClick={() => onDelete(reply.id)}
-                  className="opacity-75 hover:opacity-100"
+                  className="opacity-75 hover:opacity-100 active:opacity-100 p-2 rounded touch-manipulation"
                   title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -722,8 +743,7 @@ function ReplyMessageComponent({
             </div>
           </div>
           
-          <p className="text-sm text-black">{reply.content}</p>
-          
+          <p className="text-base break-words leading-relaxed">{reply.content}</p>
         </div>
       </div>
     </div>
