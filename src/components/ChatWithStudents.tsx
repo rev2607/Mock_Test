@@ -277,6 +277,29 @@ export function ChatWithStudents() {
     return null
   }
 
+  if (databaseError) {
+    return (
+      <div className="flex h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center p-8">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Database Setup Required</h3>
+            <p className="text-gray-600 mb-4">{databaseError}</p>
+            <div className="bg-gray-100 p-4 rounded-lg text-left">
+              <p className="text-sm text-gray-700 mb-2">To fix this:</p>
+              <ol className="text-sm text-gray-700 list-decimal list-inside space-y-1">
+                <li>Go to your Supabase dashboard</li>
+                <li>Navigate to the SQL Editor</li>
+                <li>Run the <code className="bg-gray-200 px-1 rounded">setup-chat-database.sql</code> script</li>
+                <li>Refresh this page</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Sidebar */}
