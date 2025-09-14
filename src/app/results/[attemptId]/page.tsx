@@ -114,20 +114,20 @@ export default function ResultsPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Test Details</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Started:</span>
-                  <span className="font-medium">
+                  <span className="text-gray-900 font-medium">Started:</span>
+                  <span className="font-medium text-gray-900">
                     {new Date(attempt.started_at).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Submitted:</span>
-                  <span className="font-medium">
+                  <span className="text-gray-900 font-medium">Submitted:</span>
+                  <span className="font-medium text-gray-900">
                     {attempt.submitted_at ? new Date(attempt.submitted_at).toLocaleString() : 'Not submitted'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium">
+                  <span className="text-gray-900 font-medium">Duration:</span>
+                  <span className="font-medium text-gray-900">
                     {attempt.submitted_at 
                       ? Math.round((new Date(attempt.submitted_at).getTime() - new Date(attempt.started_at).getTime()) / 60000)
                       : 'N/A'
