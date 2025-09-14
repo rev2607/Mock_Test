@@ -39,9 +39,10 @@ CREATE POLICY "Users can delete own profile" ON public.profiles
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, user_name, phone_number, city, pincode, target_exam, role)
+    INSERT INTO public.profiles (id, email, user_name, phone_number, city, pincode, target_exam, role)
     VALUES (
         NEW.id,
+        NEW.email,
         NEW.raw_user_meta_data->>'user_name',
         NEW.raw_user_meta_data->>'phone_number',
         NEW.raw_user_meta_data->>'city',
@@ -66,6 +67,7 @@ BEGIN
     -- Update the profiles table when user metadata changes
     UPDATE public.profiles
     SET 
+        email = NEW.email,
         user_name = NEW.raw_user_meta_data->>'user_name',
         phone_number = NEW.raw_user_meta_data->>'phone_number',
         city = NEW.raw_user_meta_data->>'city',

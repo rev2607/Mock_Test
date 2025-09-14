@@ -7,10 +7,14 @@ import Link from 'next/link'
 import { User, Mail, Phone, MapPin, GraduationCap } from 'lucide-react'
 
 const examOptions = [
-  { value: 'jee-mains', label: 'JEE Mains' },
-  { value: 'jee-advanced', label: 'JEE Advanced' },
-  { value: 'eamcet', label: 'EAMCET' },
-  { value: 'aiims', label: 'AIIMS' },
+  { value: 'IIT/JEE', label: 'IIT/JEE' },
+  { value: 'JEE Mains', label: 'JEE Mains' },
+  { value: 'JEE Advanced', label: 'JEE Advanced' },
+  { value: 'EAMCET', label: 'EAMCET' },
+  { value: 'AIIMS', label: 'AIIMS' },
+  { value: 'NEET', label: 'NEET' },
+  { value: 'BITSAT', label: 'BITSAT' },
+  { value: 'VITEEE', label: 'VITEEE' },
 ]
 
 export default function SignupPage() {
