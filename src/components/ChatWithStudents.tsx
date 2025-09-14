@@ -326,18 +326,58 @@ export function ChatWithStudents() {
   }
 
   const addReaction = async (messageId: string, emoji: string) => {
-    if (!user) return
+    if (!user) {
+      console.error('No user found when trying to add reaction')
+      return
+    }
 
-    const { error } = await supabase
-      .from('reactions')
-      .upsert({
-        message_id: messageId,
-        user_id: user.id,
-        emoji
-      })
+    console.log('Adding reaction:', { messageId, emoji, userId: user.id })
 
-    if (error) {
-      console.error('Error adding reaction:', error)
+    try {
+      // First, try to check if the reaction already exists
+      const { data: existingReaction, error: checkError } = await supabase
+        .from('reactions')
+        .select('id')
+        .eq('message_id', messageId)
+        .eq('user_id', user.id)
+        .eq('emoji', emoji)
+        .single()
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing reaction:', checkError)
+        return
+      }
+
+      if (existingReaction) {
+        console.log('Reaction already exists, skipping')
+        return
+      }
+
+      // Insert the new reaction
+      const { data, error } = await supabase
+        .from('reactions')
+        .insert({
+          message_id: messageId,
+          user_id: user.id,
+          emoji
+        })
+        .select()
+
+      if (error) {
+        console.error('Error adding reaction:', error)
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+      } else {
+        console.log('Reaction added successfully:', data)
+        // Refresh messages to show the new reaction
+        fetchMessages()
+      }
+    } catch (err) {
+      console.error('Unexpected error adding reaction:', err)
     }
   }
 
