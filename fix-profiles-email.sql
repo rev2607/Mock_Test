@@ -1,10 +1,27 @@
--- Fix profiles data issues
--- This script addresses the email not being saved and incorrect target exam values
+-- Fix profiles table to include email and correct target exam values
+-- This script will update existing profiles and fix the database triggers
 
--- First, let's update the trigger functions to include email
--- (This should be run in Supabase SQL Editor)
+-- First, update existing profiles to include email from auth.users
+UPDATE public.profiles 
+SET email = auth_users.email
+FROM auth.users AS auth_users
+WHERE profiles.id = auth_users.id 
+AND profiles.email IS NULL;
 
--- Update the handle_new_user function to include email
+-- Update target exam values to be consistent
+UPDATE public.profiles 
+SET target_exam = 'IIT/JEE'
+WHERE target_exam = 'jee-mains' OR target_exam = 'jee-advanced';
+
+UPDATE public.profiles 
+SET target_exam = 'EAMCET'
+WHERE target_exam = 'eamcet';
+
+UPDATE public.profiles 
+SET target_exam = 'AIIMS'
+WHERE target_exam = 'aiims';
+
+-- Update the trigger function to include email
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -23,7 +40,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Update the handle_user_update function to include email
+-- Update the trigger function for user updates to include email
 CREATE OR REPLACE FUNCTION public.handle_user_update()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -44,37 +61,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Fix existing profiles by updating email from auth.users
-UPDATE public.profiles 
-SET email = auth_users.email
-FROM auth.users AS auth_users
-WHERE public.profiles.id = auth_users.id 
-AND public.profiles.email IS NULL;
-
--- Fix target exam values to match the new format
-UPDATE public.profiles 
-SET target_exam = 'IIT/JEE'
-WHERE target_exam = 'jee-mains' OR target_exam = 'jee-advanced';
-
-UPDATE public.profiles 
-SET target_exam = 'EAMCET'
-WHERE target_exam = 'eamcet';
-
-UPDATE public.profiles 
-SET target_exam = 'AIIMS'
-WHERE target_exam = 'aiims';
-
--- Verify the fixes
-SELECT 
-    id,
-    email,
-    user_name,
-    phone_number,
-    city,
-    pincode,
-    target_exam,
-    role,
-    created_at,
-    updated_at
-FROM public.profiles
+-- Verify the updates
+SELECT id, email, user_name, target_exam, created_at 
+FROM public.profiles 
 ORDER BY created_at DESC;

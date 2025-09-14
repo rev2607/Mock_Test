@@ -8,13 +8,10 @@ import { User, Mail, Phone, MapPin, GraduationCap } from 'lucide-react'
 
 const examOptions = [
   { value: 'IIT/JEE', label: 'IIT/JEE' },
-  { value: 'JEE Mains', label: 'JEE Mains' },
-  { value: 'JEE Advanced', label: 'JEE Advanced' },
   { value: 'EAMCET', label: 'EAMCET' },
   { value: 'AIIMS', label: 'AIIMS' },
   { value: 'NEET', label: 'NEET' },
-  { value: 'BITSAT', label: 'BITSAT' },
-  { value: 'VITEEE', label: 'VITEEE' },
+  { value: 'Other', label: 'Other' },
 ]
 
 export default function SignupPage() {
@@ -85,7 +82,8 @@ export default function SignupPage() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // First, sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -99,12 +97,36 @@ export default function SignupPage() {
         },
       })
 
-      if (error) {
-        setError(error.message)
-      } else {
-        router.push('/auth/login?message=Please check your email to confirm your account')
+      if (authError) {
+        setError(authError.message)
+        return
       }
+
+      // If user was created successfully, manually create/update the profile
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: authData.user.id,
+            email: formData.email,
+            user_name: formData.userName,
+            phone_number: formData.phoneNumber,
+            city: formData.city,
+            pincode: formData.pincode,
+            target_exam: formData.targetExam,
+            role: 'student'
+          })
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError)
+          // Don't show error to user as the account was created successfully
+          // The trigger should handle this, but this is a fallback
+        }
+      }
+
+      router.push('/auth/login?message=Please check your email to confirm your account')
     } catch (error) {
+      console.error('Signup error:', error)
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
