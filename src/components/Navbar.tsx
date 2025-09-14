@@ -92,7 +92,7 @@ export function Navbar() {
 
             {/* College Rankometer */}
             <button
-              onClick={() => router.push('/rankometer')}
+              onClick={() => router.push('/college-rankometer')}
               className="flex items-center space-x-1 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             >
               <TrendingUp className="h-4 w-4" />
@@ -249,7 +249,7 @@ export function Navbar() {
               </button>
               <button
                 onClick={() => {
-                  router.push('/rankometer')
+                  router.push('/college-rankometer')
                   setIsMobileMenuOpen(false)
                 }}
                 className="w-full text-left px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg flex items-center space-x-2"
