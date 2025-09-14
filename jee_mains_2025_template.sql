@@ -15,7 +15,7 @@ INSERT INTO subjects (id, name, key) VALUES (
 -- Sample question structure (replace with actual questions from PDF)
 -- Mathematics Questions
 INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
-    'q1-uuid-here',
+    gen_random_uuid(),
     '550e8400-e29b-41d4-a716-446655440000',
     'JEE Mains 2025 - Mathematics - Question 1',
     'If the equation x² + 2x + 3 = 0 has roots α and β, then the value of α² + β² is:
@@ -28,16 +28,25 @@ INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
     2
 );
 
--- Options for Question 1
-INSERT INTO options (id, question_id, text, is_correct) VALUES 
-    ('opt1-uuid-here', 'q1-uuid-here', '2', false),
-    ('opt2-uuid-here', 'q1-uuid-here', '-2', true),
-    ('opt3-uuid-here', 'q1-uuid-here', '4', false),
-    ('opt4-uuid-here', 'q1-uuid-here', '-4', false);
+-- Options for Question 1 (using a variable to store the question ID)
+DO $$
+DECLARE
+    q1_id UUID;
+BEGIN
+    -- Get the question ID we just inserted
+    SELECT id INTO q1_id FROM questions WHERE title = 'JEE Mains 2025 - Mathematics - Question 1' LIMIT 1;
+    
+    -- Insert options
+    INSERT INTO options (id, question_id, text, is_correct) VALUES 
+        (gen_random_uuid(), q1_id, '2', false),
+        (gen_random_uuid(), q1_id, '-2', true),
+        (gen_random_uuid(), q1_id, '4', false),
+        (gen_random_uuid(), q1_id, '-4', false);
+END $$;
 
 -- Physics Questions
 INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
-    'q2-uuid-here',
+    gen_random_uuid(),
     '550e8400-e29b-41d4-a716-446655440000',
     'JEE Mains 2025 - Physics - Question 1',
     'A particle moves in a straight line with velocity v = 3t² - 2t + 1 m/s. The acceleration at t = 2s is:
@@ -51,15 +60,24 @@ INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
 );
 
 -- Options for Physics Question
-INSERT INTO options (id, question_id, text, is_correct) VALUES 
-    ('opt5-uuid-here', 'q2-uuid-here', '10 m/s²', true),
-    ('opt6-uuid-here', 'q2-uuid-here', '8 m/s²', false),
-    ('opt7-uuid-here', 'q2-uuid-here', '6 m/s²', false),
-    ('opt8-uuid-here', 'q2-uuid-here', '4 m/s²', false);
+DO $$
+DECLARE
+    q2_id UUID;
+BEGIN
+    -- Get the question ID we just inserted
+    SELECT id INTO q2_id FROM questions WHERE title = 'JEE Mains 2025 - Physics - Question 1' LIMIT 1;
+    
+    -- Insert options
+    INSERT INTO options (id, question_id, text, is_correct) VALUES 
+        (gen_random_uuid(), q2_id, '10 m/s²', true),
+        (gen_random_uuid(), q2_id, '8 m/s²', false),
+        (gen_random_uuid(), q2_id, '6 m/s²', false),
+        (gen_random_uuid(), q2_id, '4 m/s²', false);
+END $$;
 
 -- Chemistry Questions
 INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
-    'q3-uuid-here',
+    gen_random_uuid(),
     '550e8400-e29b-41d4-a716-446655440000',
     'JEE Mains 2025 - Chemistry - Question 1',
     'The IUPAC name of CH₃-CH₂-CH=CH₂ is:
@@ -73,15 +91,24 @@ INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
 );
 
 -- Options for Chemistry Question
-INSERT INTO options (id, question_id, text, is_correct) VALUES 
-    ('opt9-uuid-here', 'q3-uuid-here', 'But-1-ene', true),
-    ('opt10-uuid-here', 'q3-uuid-here', 'But-2-ene', false),
-    ('opt11-uuid-here', 'q3-uuid-here', '1-Butene', false),
-    ('opt12-uuid-here', 'q3-uuid-here', '2-Butene', false);
+DO $$
+DECLARE
+    q3_id UUID;
+BEGIN
+    -- Get the question ID we just inserted
+    SELECT id INTO q3_id FROM questions WHERE title = 'JEE Mains 2025 - Chemistry - Question 1' LIMIT 1;
+    
+    -- Insert options
+    INSERT INTO options (id, question_id, text, is_correct) VALUES 
+        (gen_random_uuid(), q3_id, 'But-1-ene', true),
+        (gen_random_uuid(), q3_id, 'But-2-ene', false),
+        (gen_random_uuid(), q3_id, '1-Butene', false),
+        (gen_random_uuid(), q3_id, '2-Butene', false);
+END $$;
 
 -- Create a test for JEE Mains 2025
 INSERT INTO tests (id, subject_id, title, duration_minutes, shuffle) VALUES (
-    'test-uuid-here',
+    gen_random_uuid(),
     '550e8400-e29b-41d4-a716-446655440000',
     'JEE Mains 2025 - Full Paper',
     180,  -- 3 hours
@@ -89,10 +116,27 @@ INSERT INTO tests (id, subject_id, title, duration_minutes, shuffle) VALUES (
 );
 
 -- Add questions to the test
-INSERT INTO test_questions (id, test_id, question_id, position) VALUES 
-    ('tq1-uuid-here', 'test-uuid-here', 'q1-uuid-here', 1),
-    ('tq2-uuid-here', 'test-uuid-here', 'q2-uuid-here', 2),
-    ('tq3-uuid-here', 'test-uuid-here', 'q3-uuid-here', 3);
+DO $$
+DECLARE
+    test_id UUID;
+    q1_id UUID;
+    q2_id UUID;
+    q3_id UUID;
+BEGIN
+    -- Get the test ID we just inserted
+    SELECT id INTO test_id FROM tests WHERE title = 'JEE Mains 2025 - Full Paper' LIMIT 1;
+    
+    -- Get question IDs
+    SELECT id INTO q1_id FROM questions WHERE title = 'JEE Mains 2025 - Mathematics - Question 1' LIMIT 1;
+    SELECT id INTO q2_id FROM questions WHERE title = 'JEE Mains 2025 - Physics - Question 1' LIMIT 1;
+    SELECT id INTO q3_id FROM questions WHERE title = 'JEE Mains 2025 - Chemistry - Question 1' LIMIT 1;
+    
+    -- Insert test questions
+    INSERT INTO test_questions (id, test_id, question_id, position) VALUES 
+        (gen_random_uuid(), test_id, q1_id, 1),
+        (gen_random_uuid(), test_id, q2_id, 2),
+        (gen_random_uuid(), test_id, q3_id, 3);
+END $$;
 
 -- Instructions for manual data entry:
 /*

@@ -152,19 +152,17 @@ def generate_sql_insert(questions: List[Dict[str, Any]], subject_id: str) -> str
     sql_statements = []
     
     for i, question in enumerate(questions):
-        question_id = str(uuid.uuid4())
-        
         # Clean and format the question content
         content = format_math_equations(clean_text(question['content']))
         
         # Extract options if present (this is a basic extraction)
         options = extract_options_from_question(content)
         
-        # Insert question
+        # Insert question using gen_random_uuid()
         sql_statements.append(f"""
 -- Question {question['number']}
 INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
-    '{question_id}',
+    gen_random_uuid(),
     '{subject_id}',
     'JEE Mains 2025 - Question {question['number']}',
     {repr(content)},
@@ -172,16 +170,27 @@ INSERT INTO questions (id, subject_id, title, body, topic, difficulty) VALUES (
     {question['difficulty']}
 );""")
         
-        # Insert options
-        for j, option in enumerate(options):
-            option_id = str(uuid.uuid4())
+        # Insert options using DO block to get question ID
+        if options:
             sql_statements.append(f"""
-INSERT INTO options (id, question_id, text, is_correct) VALUES (
-    '{option_id}',
-    '{question_id}',
-    {repr(option['text'])},
-    {str(option['is_correct']).lower()}
-);""")
+-- Options for Question {question['number']}
+DO $$
+DECLARE
+    q_id UUID;
+BEGIN
+    -- Get the question ID we just inserted
+    SELECT id INTO q_id FROM questions WHERE title = 'JEE Mains 2025 - Question {question['number']}' LIMIT 1;
+    
+    -- Insert options""")
+            
+            for j, option in enumerate(options):
+                sql_statements.append(f"""
+    INSERT INTO options (id, question_id, text, is_correct) VALUES (
+        gen_random_uuid(), q_id, {repr(option['text'])}, {str(option['is_correct']).lower()}
+    );""")
+            
+            sql_statements.append("""
+END $$;""")
     
     return '\n'.join(sql_statements)
 

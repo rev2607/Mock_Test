@@ -132,7 +132,10 @@ export default function RunTestPage() {
       
       questions.forEach(question => {
         const userAnswers = answers[question.id] || []
-        const correctOptions = question.options.filter(opt => opt.is_correct).map(opt => parseInt(opt.id))
+        const correctOptions = question.options
+          .map((opt, index) => ({ opt, index }))
+          .filter(({ opt }) => opt.is_correct)
+          .map(({ index }) => index)
         
         if (userAnswers.length === correctOptions.length && 
             userAnswers.every(answer => correctOptions.includes(answer))) {
@@ -157,16 +160,19 @@ export default function RunTestPage() {
             total: totalQuestions,
             percentage: score
           },
-          result_json: {
+            result_json: {
             answers: answers,
             questions: questions.map(q => ({
               id: q.id,
               topic: q.topic,
               difficulty: q.difficulty,
               correct: answers[q.id] ? 
-                q.options.filter(opt => opt.is_correct).map(opt => parseInt(opt.id)).every(correctId => 
-                  answers[q.id].includes(correctId)
-                ) : false
+                q.options
+                  .map((opt, index) => ({ opt, index }))
+                  .filter(({ opt }) => opt.is_correct)
+                  .map(({ index }) => index)
+                  .every(correctIndex => answers[q.id].includes(correctIndex))
+                : false
             }))
           }
         })
@@ -270,7 +276,7 @@ export default function RunTestPage() {
           {/* Options */}
           <div className="space-y-3">
             {currentQuestion?.options.map((option, index) => {
-              const isSelected = answers[currentQuestion.id]?.includes(parseInt(option.id)) || false
+              const isSelected = answers[currentQuestion.id]?.includes(index) || false
               return (
                 <div
                   key={`${currentQuestion.id}-${option.id}`}
@@ -280,13 +286,13 @@ export default function RunTestPage() {
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => {
-                    console.log(`Clicking option ${option.id} for question ${currentQuestion.id}`)
+                    console.log(`Clicking option ${option.id} (index ${index}) for question ${currentQuestion.id}`)
                     console.log('Current answers before click:', answers)
                     
-                    // Force a single selection by directly setting the array
+                    // Force a single selection by directly setting the array with the option index
                     const newAnswers = {
                       ...answers,
-                      [currentQuestion.id]: [parseInt(option.id)]
+                      [currentQuestion.id]: [index]
                     }
                     
                     console.log('Setting new answers:', newAnswers)

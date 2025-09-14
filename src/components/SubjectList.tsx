@@ -55,7 +55,8 @@ export function SubjectList() {
       router.push('/auth/login?message=Please login to access tests')
       return
     }
-    router.push(`/tests/${subject.id}`)
+    // Use subject key for navigation instead of ID
+    router.push(`/tests/${subject.key}`)
   }
 
   if (loading) {

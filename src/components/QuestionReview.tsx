@@ -146,6 +146,14 @@ export function QuestionReview({ attemptId, resultData, testTitle }: QuestionRev
   const userAnswers = resultData?.answers?.[currentQuestion.id] || []
   const isCorrect = resultData?.questions?.find((q: any) => q.id === currentQuestion.id)?.correct || false
 
+  // Debug logging
+  console.log('QuestionReview Debug:', {
+    currentQuestionId: currentQuestion?.id,
+    userAnswers,
+    resultDataAnswers: resultData?.answers,
+    isCorrect
+  })
+
   const getDifficultyColor = (difficulty: number) => {
     if (difficulty <= 1) return 'bg-green-100 text-green-800'
     if (difficulty <= 2) return 'bg-yellow-100 text-yellow-800'
@@ -206,8 +214,8 @@ export function QuestionReview({ attemptId, resultData, testTitle }: QuestionRev
         </p>
 
         <div className="space-y-3">
-          {currentQuestion.options.map((option) => {
-            const isSelected = userAnswers.includes(parseInt(option.id))
+          {currentQuestion.options.map((option, optionIndex) => {
+            const isSelected = userAnswers.includes(optionIndex)
             const isCorrectOption = option.is_correct
             
             return (
@@ -236,16 +244,23 @@ export function QuestionReview({ attemptId, resultData, testTitle }: QuestionRev
                   }`}>
                     {option.text}
                   </span>
-                  {isCorrectOption && (
-                    <span className="ml-auto text-sm font-medium text-green-600">
-                      Correct Answer
-                    </span>
-                  )}
-                  {isSelected && !isCorrectOption && (
-                    <span className="ml-auto text-sm font-medium text-red-600">
-                      Your Answer
-                    </span>
-                  )}
+                  <div className="ml-auto flex items-center space-x-2">
+                    {isCorrectOption && (
+                      <span className="text-sm font-medium text-green-600">
+                        Correct Answer
+                      </span>
+                    )}
+                    {isSelected && !isCorrectOption && (
+                      <span className="text-sm font-medium text-red-600">
+                        Your Answer
+                      </span>
+                    )}
+                    {isSelected && isCorrectOption && (
+                      <span className="text-sm font-medium text-green-600">
+                        Your Answer ✓
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )

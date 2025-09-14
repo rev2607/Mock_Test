@@ -21,12 +21,21 @@ export function TestList({ subjectId }: { subjectId: string }) {
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        // Fetch subject info
-        const { data: subjectData, error: subjectError } = await supabase
+        // Check if subjectId is a UUID or a key
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(subjectId)
+        
+        // Fetch subject info - try by ID first, then by key
+        let subjectQuery = supabase
           .from('subjects')
           .select('*')
-          .eq('id', subjectId)
-          .single()
+        
+        if (isUUID) {
+          subjectQuery = subjectQuery.eq('id', subjectId)
+        } else {
+          subjectQuery = subjectQuery.eq('key', subjectId)
+        }
+        
+        const { data: subjectData, error: subjectError } = await subjectQuery.single()
 
         if (subjectError) {
           console.error('Error fetching subject:', subjectError.message)
@@ -35,7 +44,8 @@ export function TestList({ subjectId }: { subjectId: string }) {
           setSubject(subjectData)
         }
 
-        // Fetch tests with question count
+        // Fetch tests with question count - use the actual subject ID
+        const actualSubjectId = subjectData?.id || subjectId
         const { data: testsData, error: testsError } = await supabase
           .from('tests')
           .select(`
@@ -43,7 +53,7 @@ export function TestList({ subjectId }: { subjectId: string }) {
             subject:subjects(*),
             test_questions(count)
           `)
-          .eq('subject_id', subjectId)
+          .eq('subject_id', actualSubjectId)
           .order('created_at', { ascending: false })
 
         if (testsError) {

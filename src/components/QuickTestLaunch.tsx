@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Play, BookOpen, Check, Calendar } from 'lucide-react'
+import { createClient } from '@/lib/supabase-client'
 
 const examOptions = [
   { value: 'jee-mains', label: 'JEE Mains' },
@@ -24,12 +25,47 @@ export function QuickTestLaunch() {
   const [selectedYear, setSelectedYear] = useState(currentYear.toString())
   const [isExamDropdownOpen, setIsExamDropdownOpen] = useState(false)
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const supabase = createClient()
 
-  const handleStartTest = () => {
-    // For now, redirect to a generic test page
-    // In a real implementation, this would create a test based on selected exam
-    router.push('/test/quick-test')
+  const handleStartTest = async () => {
+    setLoading(true)
+    
+    try {
+      // For JEE Mains 2025, find and redirect to IIT JEE Mock Test 1
+      if (selectedExam === 'jee-mains' && selectedYear === '2025') {
+        const { data: testData, error } = await supabase
+          .from('tests')
+          .select('id')
+          .eq('title', 'IIT JEE Mock Test 1')
+          .single()
+        
+        if (error) {
+          console.error('Error finding test:', error)
+          // Fallback to IIT JEE tests page
+          router.push('/tests/iit')
+        } else if (testData) {
+          // Redirect directly to the test
+          router.push(`/test/${testData.id}/start`)
+        } else {
+          router.push('/tests/iit')
+        }
+      } else if (selectedExam === 'jee-advanced') {
+        router.push('/tests/iit')
+      } else if (selectedExam === 'aiims') {
+        router.push('/tests/aiims')
+      } else if (selectedExam === 'eamcet') {
+        router.push('/tests/eamcet')
+      } else {
+        router.push('/tests/iit')
+      }
+    } catch (error) {
+      console.error('Error starting test:', error)
+      router.push('/tests/iit')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const selectedExamLabel = examOptions.find(exam => exam.value === selectedExam)?.label || 'Select Exam'
@@ -138,9 +174,10 @@ export function QuickTestLaunch() {
       {/* Start Test Button */}
       <button
         onClick={handleStartTest}
-        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+        disabled={loading}
+        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
       >
-        Start Test Now
+        {loading ? 'Starting Test...' : 'Start Test Now'}
       </button>
 
       {/* Features */}
