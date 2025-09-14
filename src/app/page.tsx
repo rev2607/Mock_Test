@@ -1,4 +1,3 @@
-import { SubjectList } from '@/components/SubjectList'
 import { QuickTestLaunch } from '@/components/QuickTestLaunch'
 
 export default function Home() {
@@ -16,14 +15,6 @@ export default function Home() {
       {/* Quick Test Launch Section */}
       <div className="mb-16">
         <QuickTestLaunch />
-      </div>
-      
-      {/* Subject List Section */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-          Browse by Subject
-        </h2>
-        <SubjectList />
       </div>
     </div>
   )
