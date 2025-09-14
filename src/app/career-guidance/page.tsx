@@ -1,9 +1,9 @@
 'use client'
 
-import { Users, Clock, ArrowLeft } from 'lucide-react'
+import { GraduationCap, Clock, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-export default function ChatStudentsPage() {
+export default function CareerGuidancePage() {
   const router = useRouter()
 
   return (
@@ -24,13 +24,13 @@ export default function ChatStudentsPage() {
         <div className="space-y-6">
           {/* Icon */}
           <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-blue-100">
-            <Users className="h-10 w-10 text-blue-600" />
+            <GraduationCap className="h-10 w-10 text-blue-600" />
           </div>
 
           {/* Title */}
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Chat with Students
+              Career Guidance
             </h1>
             <div className="flex items-center justify-center text-2xl font-semibold text-blue-600 mb-4">
               <Clock className="h-6 w-6 mr-2" />
@@ -41,10 +41,10 @@ export default function ChatStudentsPage() {
           {/* Description */}
           <div className="space-y-4">
             <p className="text-lg text-gray-600">
-              We're building an amazing community platform for students to connect and learn together.
+              We're developing a comprehensive career guidance platform to help you make informed decisions about your future.
             </p>
             <p className="text-gray-500">
-              Get ready to join study groups, ask questions, and share knowledge with fellow students.
+              Get ready to explore career paths, discover opportunities, and plan your academic journey.
             </p>
           </div>
 
@@ -54,19 +54,19 @@ export default function ChatStudentsPage() {
             <ul className="space-y-2 text-left text-gray-600">
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Study groups and forums
+                Career assessment tests
               </li>
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Real-time chat with students
+                Industry insights and trends
               </li>
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Subject-specific discussions
+                Educational pathway planning
               </li>
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Peer-to-peer learning
+                Expert career counseling
               </li>
             </ul>
           </div>

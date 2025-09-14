@@ -1,9 +1,9 @@
 'use client'
 
-import { Users, Clock, ArrowLeft } from 'lucide-react'
+import { MessageCircle, Clock, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-export default function ChatStudentsPage() {
+export default function ChatSupportPage() {
   const router = useRouter()
 
   return (
@@ -24,13 +24,13 @@ export default function ChatStudentsPage() {
         <div className="space-y-6">
           {/* Icon */}
           <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-blue-100">
-            <Users className="h-10 w-10 text-blue-600" />
+            <MessageCircle className="h-10 w-10 text-blue-600" />
           </div>
 
           {/* Title */}
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Chat with Students
+              Chat with US
             </h1>
             <div className="flex items-center justify-center text-2xl font-semibold text-blue-600 mb-4">
               <Clock className="h-6 w-6 mr-2" />
@@ -41,10 +41,10 @@ export default function ChatStudentsPage() {
           {/* Description */}
           <div className="space-y-4">
             <p className="text-lg text-gray-600">
-              We're building an amazing community platform for students to connect and learn together.
+              We're building a dedicated support system to help you with any questions or issues.
             </p>
             <p className="text-gray-500">
-              Get ready to join study groups, ask questions, and share knowledge with fellow students.
+              Get ready for instant support, technical assistance, and personalized help from our team.
             </p>
           </div>
 
@@ -54,19 +54,19 @@ export default function ChatStudentsPage() {
             <ul className="space-y-2 text-left text-gray-600">
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Study groups and forums
+                Live chat support
               </li>
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Real-time chat with students
+                Technical assistance
               </li>
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Subject-specific discussions
+                FAQ and help center
               </li>
               <li className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Peer-to-peer learning
+                Priority support for premium users
               </li>
             </ul>
           </div>
