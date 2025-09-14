@@ -58,7 +58,12 @@ export function ProfileCompletionCheck({ children }: { children: React.ReactNode
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="h-4 w-4 mr-3 text-gray-400" />
-                <span>Address</span>
+                <span>City</span>
+                <span className="ml-auto text-red-500">✗</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="h-4 w-4 mr-3 text-gray-400" />
+                <span>Pincode</span>
                 <span className="ml-auto text-red-500">✗</span>
               </div>
               <div className="flex items-center text-sm text-gray-600">

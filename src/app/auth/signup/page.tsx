@@ -18,7 +18,8 @@ export default function SignupPage() {
     email: '',
     userName: '',
     phoneNumber: '',
-    address: '',
+    city: '',
+    pincode: '',
     targetExam: '',
     password: '',
     confirmPassword: '',
@@ -38,9 +39,9 @@ export default function SignupPage() {
   }
 
   const validateForm = () => {
-    const { email, userName, phoneNumber, address, targetExam, password, confirmPassword } = formData
+    const { email, userName, phoneNumber, city, pincode, targetExam, password, confirmPassword } = formData
 
-    if (!email || !userName || !phoneNumber || !address || !targetExam) {
+    if (!email || !userName || !phoneNumber || !city || !pincode || !targetExam) {
       setError('All fields are mandatory')
       return false
     }
@@ -58,6 +59,12 @@ export default function SignupPage() {
     const phoneRegex = /^[0-9]{10}$/
     if (!phoneRegex.test(phoneNumber)) {
       setError('Please enter a valid 10-digit phone number')
+      return false
+    }
+
+    const pincodeRegex = /^[0-9]{6}$/
+    if (!pincodeRegex.test(pincode)) {
+      setError('Please enter a valid 6-digit pincode')
       return false
     }
 
@@ -83,7 +90,8 @@ export default function SignupPage() {
             role: formData.role,
             user_name: formData.userName,
             phone_number: formData.phoneNumber,
-            address: formData.address,
+            city: formData.city,
+            pincode: formData.pincode,
             target_exam: formData.targetExam,
           },
         },
@@ -176,28 +184,68 @@ export default function SignupPage() {
                 type="tel"
                 autoComplete="tel"
                 required
+                pattern="[0-9]{10}"
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Enter your 10-digit phone number"
                 value={formData.phoneNumber}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  // Allow: backspace, delete, tab, escape, enter
+                  if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                      // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                      (e.keyCode === 65 && e.ctrlKey === true) ||
+                      (e.keyCode === 67 && e.ctrlKey === true) ||
+                      (e.keyCode === 86 && e.ctrlKey === true) ||
+                      (e.keyCode === 88 && e.ctrlKey === true) ||
+                      // Allow: home, end, left, right
+                      (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    return;
+                  }
+                  // Ensure that it is a number and stop the keypress
+                  if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                  }
+                }}
+                suppressHydrationWarning
+              />
+            </div>
+
+            {/* City */}
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                <MapPin className="h-4 w-4 inline mr-2" />
+                City/Area *
+              </label>
+              <input
+                id="city"
+                name="city"
+                type="text"
+                autoComplete="address-level2"
+                required
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Enter your city"
+                value={formData.city}
                 onChange={handleInputChange}
                 suppressHydrationWarning
               />
             </div>
 
-            {/* Address */}
+            {/* Pincode */}
             <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="pincode" className="block text-sm font-medium text-gray-700">
                 <MapPin className="h-4 w-4 inline mr-2" />
-                Address *
+                Pincode *
               </label>
-              <textarea
-                id="address"
-                name="address"
+              <input
+                id="pincode"
+                name="pincode"
+                type="text"
+                autoComplete="postal-code"
                 required
-                rows={3}
+                maxLength={6}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter your complete address"
-                value={formData.address}
+                placeholder="Enter your 6-digit pincode"
+                value={formData.pincode}
                 onChange={handleInputChange}
                 suppressHydrationWarning
               />
@@ -213,13 +261,13 @@ export default function SignupPage() {
                 id="targetExam"
                 name="targetExam"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white"
                 value={formData.targetExam}
                 onChange={handleInputChange}
               >
-                <option value="">Select your target exam</option>
+                <option value="" className="text-gray-900">Select your target exam</option>
                 {examOptions.map((exam) => (
-                  <option key={exam.value} value={exam.value}>
+                  <option key={exam.value} value={exam.value} className="text-gray-900">
                     {exam.label}
                   </option>
                 ))}
@@ -234,12 +282,12 @@ export default function SignupPage() {
               <select
                 id="role"
                 name="role"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white"
                 value={formData.role}
                 onChange={handleInputChange}
               >
-                <option value="student">Student</option>
-                <option value="admin">Admin</option>
+                <option value="student" className="text-gray-900">Student</option>
+                <option value="admin" className="text-gray-900">Admin</option>
               </select>
             </div>
 

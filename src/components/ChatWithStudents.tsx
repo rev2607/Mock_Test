@@ -427,7 +427,7 @@ export function ChatWithStudents() {
           </div>
         )}
       </div>
-      </div>
+    </div>
     </ProfileCompletionCheck>
   )
 }
@@ -535,7 +535,6 @@ function MessageComponent({
           </div>
         )}
       </div>
-      </div>
-    </ProfileCompletionCheck>
+    </div>
   )
 }

@@ -30,7 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const hasRequiredFields = !!(
       metadata.user_name &&
       metadata.phone_number &&
-      metadata.address &&
+      metadata.city &&
+      metadata.pincode &&
       metadata.target_exam
     )
     
