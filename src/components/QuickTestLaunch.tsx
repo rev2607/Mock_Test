@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Play, BookOpen, Check } from 'lucide-react'
+import { Play, BookOpen, Check, Calendar } from 'lucide-react'
 
 const examOptions = [
   { value: 'jee-mains', label: 'JEE Mains' },
@@ -50,17 +50,20 @@ export function QuickTestLaunch() {
         <p className="text-lg text-blue-600 font-medium">Start your practice session in seconds</p>
       </div>
 
-      {/* Input Field */}
-      <div className="mb-8">
+      {/* Input Fields */}
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Select Exam */}
-        <div className="relative max-w-md mx-auto">
+        <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <BookOpen className="h-4 w-4 inline mr-2" />
             Select Exam
           </label>
           <div className="relative">
             <button
-              onClick={() => setIsExamDropdownOpen(!isExamDropdownOpen)}
+              onClick={() => {
+                setIsExamDropdownOpen(!isExamDropdownOpen)
+                setIsYearDropdownOpen(false)
+              }}
               className={`w-full px-4 py-3 border-2 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                 isExamDropdownOpen ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'
               }`}
@@ -85,6 +88,49 @@ export function QuickTestLaunch() {
                     }`}
                   >
                     {exam.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Select Year */}
+        <div className="relative">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <Calendar className="h-4 w-4 inline mr-2" />
+            Year
+          </label>
+          <div className="relative">
+            <button
+              onClick={() => {
+                setIsYearDropdownOpen(!isYearDropdownOpen)
+                setIsExamDropdownOpen(false)
+              }}
+              className={`w-full px-4 py-3 border-2 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                isYearDropdownOpen ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              <span className="text-gray-900">{selectedYearLabel}</span>
+              <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {isYearDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                {yearOptions.map((year) => (
+                  <button
+                    key={year.value}
+                    onClick={() => {
+                      setSelectedYear(year.value)
+                      setIsYearDropdownOpen(false)
+                    }}
+                    className={`w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors ${
+                      selectedYear === year.value ? 'bg-blue-50 text-blue-600' : 'text-gray-900'
+                    }`}
+                  >
+                    {year.label}
                   </button>
                 ))}
               </div>
@@ -117,11 +163,14 @@ export function QuickTestLaunch() {
         </div>
       </div>
 
-      {/* Click outside to close dropdown */}
-      {isExamDropdownOpen && (
+      {/* Click outside to close dropdowns */}
+      {(isExamDropdownOpen || isYearDropdownOpen) && (
         <div
           className="fixed inset-0 z-0"
-          onClick={() => setIsExamDropdownOpen(false)}
+          onClick={() => {
+            setIsExamDropdownOpen(false)
+            setIsYearDropdownOpen(false)
+          }}
         />
       )}
     </div>
