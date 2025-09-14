@@ -40,9 +40,9 @@ This will create everything including sample data.
 
 ## ✅ What You'll Get After Setup:
 
-- **3 Subjects**: Computer Science, AI, ECE
-- **15 Questions**: 5 per subject with multiple choice options
-- **6 Tests**: 2 per subject with proper question counts
+- **Subjects**: Will be added as needed
+- **Questions**: Will be added as needed
+- **Tests**: Will be added as needed
 - **Real Data**: No more fake demo data!
 
 ## 🔍 Verify Setup:

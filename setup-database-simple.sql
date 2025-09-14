@@ -104,8 +104,4 @@ CREATE POLICY "Users can update their own answers" ON answers FOR UPDATE USING (
 );
 
 -- 10. Insert basic subjects
-INSERT INTO subjects (name, key) VALUES 
-  ('Computer Science', 'cs'),
-  ('Artificial Intelligence', 'ai'),
-  ('Electronics & Communication', 'ece')
-ON CONFLICT (key) DO NOTHING;
+-- Subjects will be added as needed

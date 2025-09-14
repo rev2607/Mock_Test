@@ -4,16 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
-import { BookOpen, Code, Cpu, Brain } from 'lucide-react'
+import { BookOpen } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 type Subject = Database['public']['Tables']['subjects']['Row']
-
-const subjectIcons = {
-  'cs': Code,
-  'ai': Brain,
-  'ece': Cpu,
-}
 
 export function SubjectList() {
   const [subjects, setSubjects] = useState<Subject[]>([])
@@ -81,7 +75,7 @@ export function SubjectList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {subjects.map((subject) => {
-        const IconComponent = subjectIcons[subject.key as keyof typeof subjectIcons] || BookOpen
+        const IconComponent = BookOpen
         
         return (
           <button
