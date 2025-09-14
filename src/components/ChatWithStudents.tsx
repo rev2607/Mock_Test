@@ -381,12 +381,12 @@ export function ChatWithStudents() {
                   </div>
                   <button
                     onClick={() => setReplyingTo(null)}
-                    className="text-blue-500 hover:text-blue-700"
+                    className="text-blue-500 hover:text-blue-700 text-lg"
                   >
                     ✕
                   </button>
                 </div>
-                <p className="text-xs text-blue-600 mt-1 truncate">{replyingTo.content}</p>
+                <p className="text-xs text-blue-600 mt-1 truncate italic">"{replyingTo.content}"</p>
               </div>
             )}
 
@@ -398,7 +398,7 @@ export function ChatWithStudents() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder={`Message #${selectedChannel.name}`}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-black"
                     rows={1}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -450,39 +450,45 @@ function MessageComponent({
   const isOwnMessage = message.user_id === currentUserId
 
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-        isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
-      }`}>
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium opacity-75">
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-2`}>
+      <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'ml-12' : 'mr-12'}`}>
+        {/* User name - only show for other users' messages */}
+        {!isOwnMessage && (
+          <div className="text-xs text-gray-600 mb-1 px-1">
             {message.user.email}
-          </span>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="opacity-75 hover:opacity-100"
-            >
-              <Smile className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => onReply(message)}
-              className="opacity-75 hover:opacity-100"
-            >
-              <Reply className="h-4 w-4" />
-            </button>
-            {isOwnMessage && (
+          </div>
+        )}
+        
+        <div className={`px-4 py-2 rounded-lg ${
+          isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+        }`}>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex-1"></div>
+            <div className="flex items-center space-x-1">
               <button
-                onClick={() => onDelete(message.id)}
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="opacity-75 hover:opacity-100"
               >
-                <Trash2 className="h-4 w-4" />
+                <Smile className="h-4 w-4" />
               </button>
-            )}
+              <button
+                onClick={() => onReply(message)}
+                className="opacity-75 hover:opacity-100"
+              >
+                <Reply className="h-4 w-4" />
+              </button>
+              {isOwnMessage && (
+                <button
+                  onClick={() => onDelete(message.id)}
+                  className="opacity-75 hover:opacity-100"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-        
-        <p className="text-sm">{message.content}</p>
+          
+          <p className="text-sm text-black">{message.content}</p>
         
         {/* Reactions */}
         {message.reactions && message.reactions.length > 0 && (
@@ -526,10 +532,18 @@ function MessageComponent({
 
         {/* Replies */}
         {message.replies && message.replies.length > 0 && (
-          <div className="mt-2 space-y-1">
+          <div className="mt-2 space-y-2">
             {message.replies.map((reply) => (
-              <div key={reply.id} className="text-xs opacity-75 pl-2 border-l-2 border-white border-opacity-30">
-                <span className="font-medium">{reply.user.email}:</span> {reply.content}
+              <div key={reply.id} className="text-xs text-gray-500 pl-2">
+                <div className="text-gray-400 mb-1">
+                  {reply.user.email} replied to {message.user.email}
+                </div>
+                <div className="text-gray-600 italic text-xs mb-1">
+                  "{message.content}"
+                </div>
+                <div className="text-black text-sm">
+                  {reply.content}
+                </div>
               </div>
             ))}
           </div>
