@@ -50,17 +50,11 @@ ALTER TABLE channels ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reactions ENABLE ROW LEVEL SECURITY;
 
--- 7. Create RLS policies for channels (everyone can read, only admins can modify)
+-- 7. Create RLS policies for channels (everyone can read, authenticated users can modify)
 CREATE POLICY "Anyone can view channels" ON channels FOR SELECT USING (true);
-CREATE POLICY "Only admins can insert channels" ON channels FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND user_metadata->>'role' = 'admin')
-);
-CREATE POLICY "Only admins can update channels" ON channels FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND user_metadata->>'role' = 'admin')
-);
-CREATE POLICY "Only admins can delete channels" ON channels FOR DELETE USING (
-  EXISTS (SELECT 1 FROM auth.users WHERE id = auth.uid() AND user_metadata->>'role' = 'admin')
-);
+CREATE POLICY "Authenticated users can insert channels" ON channels FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Authenticated users can update channels" ON channels FOR UPDATE USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Authenticated users can delete channels" ON channels FOR DELETE USING (auth.uid() IS NOT NULL);
 
 -- 8. Create RLS policies for messages
 CREATE POLICY "Anyone can view messages" ON messages FOR SELECT USING (true);
