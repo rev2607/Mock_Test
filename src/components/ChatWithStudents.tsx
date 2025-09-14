@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase-client'
 import { Database } from '@/lib/database.types'
 import { MessageCircle, Users, Hash, Send, Smile, Reply, Trash2, MoreVertical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { ProfileCompletionCheck } from './ProfileCompletionCheck'
 
 type Channel = Database['public']['Tables']['channels']['Row']
 type Message = Database['public']['Tables']['messages']['Row'] & {
@@ -100,13 +101,10 @@ export function ChatWithStudents() {
 
       console.log('Database connection test passed')
 
-      // Now get the main messages (not replies)
+      // Now get the main messages (not replies) - simplified query without foreign key join
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
-        .select(`
-          *,
-          user:user_id(email)
-        `)
+        .select('*')
         .eq('channel_id', selectedChannel.id)
         .is('parent_message_id', null)
         .order('created_at', { ascending: true })
@@ -136,13 +134,10 @@ export function ChatWithStudents() {
         console.error('Error fetching reactions:', reactionsError)
       }
 
-      // Get replies for all messages
+      // Get replies for all messages - simplified query
       const { data: repliesData, error: repliesError } = await supabase
         .from('messages')
-        .select(`
-          *,
-          user:user_id(email)
-        `)
+        .select('*')
         .in('parent_message_id', messageIds)
         .order('created_at', { ascending: true })
 
@@ -161,12 +156,14 @@ export function ChatWithStudents() {
         console.error('Error fetching reply reactions:', replyReactionsError)
       }
 
-      // Combine the data
+      // Combine the data - for now, use user_id as email placeholder
       const messagesWithData = messagesData.map(message => ({
         ...message,
+        user: { email: message.user_id.substring(0, 8) + '...' }, // Show first 8 chars of user_id
         reactions: reactionsData?.filter(r => r.message_id === message.id) || [],
         replies: (repliesData?.filter(r => r.parent_message_id === message.id) || []).map(reply => ({
           ...reply,
+          user: { email: reply.user_id.substring(0, 8) + '...' },
           reactions: replyReactionsData?.filter(r => r.message_id === reply.id) || []
         }))
       }))
@@ -301,7 +298,8 @@ export function ChatWithStudents() {
   }
 
   return (
-    <div className="flex h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
+    <ProfileCompletionCheck>
+      <div className="flex h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Sidebar */}
       <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
         <div className="p-4 border-b border-gray-200">
@@ -429,7 +427,8 @@ export function ChatWithStudents() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ProfileCompletionCheck>
   )
 }
 
@@ -536,6 +535,7 @@ function MessageComponent({
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ProfileCompletionCheck>
   )
 }

@@ -7,12 +7,8 @@ import { Play, BookOpen, Check, Calendar } from 'lucide-react'
 const examOptions = [
   { value: 'jee-mains', label: 'JEE Mains' },
   { value: 'jee-advanced', label: 'JEE Advanced' },
-  { value: 'neet', label: 'NEET' },
-  { value: 'gate', label: 'GATE' },
-  { value: 'cat', label: 'CAT' },
-  { value: 'upsc', label: 'UPSC' },
-  { value: 'ssc', label: 'SSC' },
-  { value: 'banking', label: 'Banking' },
+  { value: 'eamcet', label: 'EAMCET' },
+  { value: 'aiims', label: 'AIIMS' },
 ]
 
 // Generate year options for the last 15 years
@@ -155,7 +151,7 @@ export function QuickTestLaunch() {
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-          <span>Step-by-step solutions</span>
+          <span>Weak areas analysis</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />

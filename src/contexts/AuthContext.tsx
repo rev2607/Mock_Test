@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean
   signOut: () => Promise<void>
   isAdmin: boolean
+  isProfileComplete: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -16,12 +17,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isProfileComplete, setIsProfileComplete] = useState(false)
   const supabase = createClient()
+
+  const checkProfileCompletion = (user: User | null) => {
+    if (!user) {
+      setIsProfileComplete(false)
+      return
+    }
+
+    const metadata = user.user_metadata || {}
+    const hasRequiredFields = !!(
+      metadata.user_name &&
+      metadata.phone_number &&
+      metadata.address &&
+      metadata.target_exam
+    )
+    
+    setIsProfileComplete(hasRequiredFields)
+  }
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      checkProfileCompletion(user)
       setLoading(false)
     }
 
@@ -29,7 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user ?? null)
+        const currentUser = session?.user ?? null
+        setUser(currentUser)
+        checkProfileCompletion(currentUser)
         setLoading(false)
       }
     )
@@ -44,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = user?.user_metadata?.role === 'admin'
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, signOut, isAdmin, isProfileComplete }}>
       {children}
     </AuthContext.Provider>
   )

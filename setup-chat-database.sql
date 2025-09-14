@@ -14,22 +14,32 @@ CREATE TABLE IF NOT EXISTS channels (
 CREATE TABLE IF NOT EXISTS messages (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   channel_id UUID REFERENCES channels(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
   content TEXT NOT NULL,
   parent_message_id UUID REFERENCES messages(id) ON DELETE CASCADE, -- For replies
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Add foreign key constraint for user_id after table creation
+ALTER TABLE messages 
+ADD CONSTRAINT fk_messages_user_id 
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
 -- 3. Create reactions table
 CREATE TABLE IF NOT EXISTS reactions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   message_id UUID REFERENCES messages(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
   emoji VARCHAR(10) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(message_id, user_id, emoji)
 );
+
+-- Add foreign key constraint for user_id in reactions
+ALTER TABLE reactions 
+ADD CONSTRAINT fk_reactions_user_id 
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- 4. Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_messages_channel_id ON messages(channel_id);
