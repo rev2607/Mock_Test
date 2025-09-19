@@ -1,8 +1,14 @@
+# Legacy folders
+legacy/
+
 # Dependencies
 node_modules/
+legacy/StudentHub_Frontend/node_modules/
 
 # Next.js build output
 .next/
+legacy/StudentHub_Frontend/dist/
+legacy/StudentHUb_Backend/static/
 
 # Logs
 npm-debug.log*
@@ -16,3 +22,5 @@ pnpm-debug.log*
 # Env files
 .env
 .env.local
+legacy/StudentHUb_Backend/.env
+legacy/StudentHub_Frontend/.env
